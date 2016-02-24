@@ -1,52 +1,52 @@
 <#if header??>
-${header}
-</#if>
-package ${config.providerJavaPackage}.${entity.packageName};
+{{header}
+{% endif %}
+package {{config.providerJavaPackage}.{{entity.packageName};
 
-import ${config.providerJavaPackage}.base.BaseModel;
+import {{config.providerJavaPackage}.base.BaseModel;
 
 import java.util.Date;
-<#if config.useAnnotations>
+{% if config.useAnnotations %}
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-</#if>
+{% endif %}
 
 /**
 <#if entity.documentation??>
- * ${entity.documentation}
+ * {{entity.documentation}
 <#else>
- * Data model for the {@code ${entity.nameLowerCase}} table.
-</#if>
+ * Data model for the {@code {{entity.nameLowerCase}} table.
+{% endif %}
  */
-public interface ${entity.nameCamelCase}Model extends BaseModel {
-    <#list entity.getFields() as field>
+public interface {{entity.nameCamelCase}Model extends BaseModel {
+    {% for entity.getFields() as field>
         <#if !field.isId>
 
     /**
     <#if field.documentation??>
-     * ${field.documentation}
+     * {{field.documentation}
     <#else>
-     * Get the {@code ${field.nameLowerCase}} value.
-    </#if>
+     * Get the {@code {{field.nameLowerCase}} value.
+    {% endif %}
         <#if field.isNullable>
      * Can be {@code null}.
         <#else>
             <#if !field.type.hasNotNullableJavaType()>
      * Cannot be {@code null}.
-            </#if>
-        </#if>
+            {% endif %}
+        {% endif %}
      */
-     <#if config.useAnnotations>
+     {% if config.useAnnotations %}
         <#if field.isNullable>
     @Nullable
         <#else>
             <#if !field.type.hasNotNullableJavaType()>
     @NonNull
-            </#if>
-        </#if>
-     </#if>
-    ${field.javaTypeSimpleName} get<#if field.isForeign>${field.path}</#if>${field.nameCamelCase}();
-        </#if>
-    </#list>
+            {% endif %}
+        {% endif %}
+     {% endif %}
+    {{field.javaTypeSimpleName} get<#if field.isForeign>{{field.path}{% endif %}{{field.nameCamelCase}();
+        {% endif %}
+    {% endfor %}
 }

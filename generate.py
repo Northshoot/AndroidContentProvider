@@ -23,11 +23,10 @@
 # Created on 2/18/16.
 
 import argparse
-
+from jinja2 import Environment
 
 
 class Generator:
-
     def __init__(self, args):
         self.args = args
         self.models = []

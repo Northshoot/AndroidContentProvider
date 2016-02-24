@@ -1,7 +1,4 @@
-<#if header??>
-${header}
-</#if>
-package ${config.providerJavaPackage}.base;
+{% extends "base.tmpl" %}
 
 import android.content.Context;
 import android.content.ContentResolver;

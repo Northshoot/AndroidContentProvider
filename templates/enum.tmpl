@@ -1,17 +1,14 @@
-<#if header??>
-${header}
-</#if>
-package ${config.providerJavaPackage}.${entity.packageName};
+{% extends "base.tmpl" %}
 
 /**
- * Possible values for the {@code ${field.nameLowerCase}} column of the {@code ${entity.nameLowerCase}} table.
+ * Possible values for the {@code {{field.nameLowerCase}} column of the {@code {{entity.nameLowerCase}} table.
  */
-public enum ${field.enumName} {
-    <#list field.enumValues as enumValue>
+public enum {{field.enumName} {
+    {% for field.enumValues as enumValue>
     /**
-     * ${enumValue.documentation!""}
+     * {{enumValue.documentation!""}
      */
-    ${enumValue.name},
+    {{enumValue.name},
 
-    </#list>
+    {% endfor %}
 }

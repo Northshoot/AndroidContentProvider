@@ -1,27 +1,24 @@
-<#if header??>
-${header}
-</#if>
-package ${config.providerJavaPackage}.${entity.packageName};
+{% extends "base.tmpl" %}
 
 import java.util.Date;
 
 import android.content.Context;
 import android.content.ContentResolver;
 import android.net.Uri;
-<#if config.useAnnotations>
+{% if config.useAnnotations %}
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-</#if>
+{% endif %}
 
-import ${config.providerJavaPackage}.base.AbstractContentValues;
+import {{config.providerJavaPackage}.base.AbstractContentValues;
 
 /**
- * Content values wrapper for the {@code ${entity.nameLowerCase}} table.
+ * Content values wrapper for the {@code {{entity.nameLowerCase}} table.
  */
-public class ${entity.nameCamelCase}ContentValues extends AbstractContentValues {
+public class {{entity.nameCamelCase}ContentValues extends AbstractContentValues {
     @Override
     public Uri uri() {
-        return ${entity.nameCamelCase}Columns.CONTENT_URI;
+        return {{entity.nameCamelCase}Columns.CONTENT_URI;
     }
 
     /**
@@ -30,7 +27,7 @@ public class ${entity.nameCamelCase}ContentValues extends AbstractContentValues 
      * @param contentResolver The content resolver to use.
      * @param where The selection to use (can be {@code null}).
      */
-    public int update(ContentResolver contentResolver, <#if config.useAnnotations>@Nullable</#if> ${entity.nameCamelCase}Selection where) {
+    public int update(ContentResolver contentResolver, {% if config.useAnnotations %}@Nullable{% endif %} {{entity.nameCamelCase}Selection where) {
         return contentResolver.update(uri(), values(), where == null ? null : where.sel(), where == null ? null : where.args());
     }
 
@@ -40,57 +37,57 @@ public class ${entity.nameCamelCase}ContentValues extends AbstractContentValues 
      * @param contentResolver The content resolver to use.
      * @param where The selection to use (can be {@code null}).
      */
-    public int update(Context context, <#if config.useAnnotations>@Nullable</#if> ${entity.nameCamelCase}Selection where) {
+    public int update(Context context, {% if config.useAnnotations %}@Nullable{% endif %} {{entity.nameCamelCase}Selection where) {
         return context.getContentResolver().update(uri(), values(), where == null ? null : where.sel(), where == null ? null : where.args());
     }
-    <#list entity.fields as field>
+    {% for entity.fields as field>
         <#if field.nameLowerCase != "_id">
 
     <#if field.documentation??>
     /**
-     * ${field.documentation}
+     * {{field.documentation}
      */
-    </#if>
+    {% endif %}
     <#if config.useAnnotations && !field.isNullable && !field.type.hasNotNullableJavaType()>
-    public ${entity.nameCamelCase}ContentValues put${field.nameCamelCase}(@NonNull ${field.javaTypeSimpleName} value) {
+    public {{entity.nameCamelCase}ContentValues put${field.nameCamelCase}(@NonNull {{field.javaTypeSimpleName} value) {
     <#elseif config.useAnnotations && field.isNullable>
-    public ${entity.nameCamelCase}ContentValues put${field.nameCamelCase}(@Nullable ${field.javaTypeSimpleName} value) {
+    public {{entity.nameCamelCase}ContentValues put${field.nameCamelCase}(@Nullable {{field.javaTypeSimpleName} value) {
     <#else>
-    public ${entity.nameCamelCase}ContentValues put${field.nameCamelCase}(${field.javaTypeSimpleName} value) {
-    </#if>
+    public {{entity.nameCamelCase}ContentValues put${field.nameCamelCase}({{field.javaTypeSimpleName} value) {
+    {% endif %}
             <#if !field.isNullable && !field.type.hasNotNullableJavaType()>
-        if (value == null) throw new IllegalArgumentException("${field.nameCamelCaseLowerCase} must not be null");
-            </#if>
+        if (value == null) throw new IllegalArgumentException("{{field.nameCamelCaseLowerCase} must not be null");
+            {% endif %}
             <#switch field.type.name()>
             <#case "DATE">
-        mContentValues.put(${entity.nameCamelCase}Columns.${field.nameUpperCase}, <#if field.isNullable>value == null ? null : </#if>value.getTime());
+        mContentValues.put({{entity.nameCamelCase}Columns.{{field.nameUpperCase}, <#if field.isNullable>value == null ? null : {% endif %}value.getTime());
             <#break>
             <#case "ENUM">
-        mContentValues.put(${entity.nameCamelCase}Columns.${field.nameUpperCase}, <#if field.isNullable>value == null ? null : </#if>value.ordinal());
+        mContentValues.put({{entity.nameCamelCase}Columns.{{field.nameUpperCase}, <#if field.isNullable>value == null ? null : {% endif %}value.ordinal());
             <#break>
             <#default>
-        mContentValues.put(${entity.nameCamelCase}Columns.${field.nameUpperCase}, value);
+        mContentValues.put({{entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
             </#switch>
         return this;
     }
 
             <#if field.isNullable>
-    public ${entity.nameCamelCase}ContentValues put${field.nameCamelCase}Null() {
-        mContentValues.putNull(${entity.nameCamelCase}Columns.${field.nameUpperCase});
+    public {{entity.nameCamelCase}ContentValues put${field.nameCamelCase}Null() {
+        mContentValues.putNull({{entity.nameCamelCase}Columns.{{field.nameUpperCase});
         return this;
     }
-            </#if>
+            {% endif %}
             <#switch field.type.name()>
             <#case "DATE">
 
-    public ${entity.nameCamelCase}ContentValues put${field.nameCamelCase}(<#if field.isNullable><#if config.useAnnotations>@Nullable </#if>Long<#else>long</#if> value) {
-        mContentValues.put(${entity.nameCamelCase}Columns.${field.nameUpperCase}, value);
+    public {{entity.nameCamelCase}ContentValues put${field.nameCamelCase}(<#if field.isNullable>{% if config.useAnnotations %}@Nullable {% endif %}Long<#else>long{% endif %} value) {
+        mContentValues.put({{entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
         return this;
     }
             <#break>
             </#switch>
-        </#if>
-    </#list>
+        {% endif %}
+    {% endfor %}
 }
 Status API Training Shop Blog About Pricing
 © 2016 GitHub, Inc. Terms Privacy Security Contac
