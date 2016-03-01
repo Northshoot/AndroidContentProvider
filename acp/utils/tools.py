@@ -20,30 +20,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Created on 2/18/16.
+# Created on 2/29/16.
 
-import argparse
 import os
-import sys
-from acp.generator import Generator
+import os.path
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Part of Ravel framework '
-                                                 'that generates models and '
-                                                 'DB fro Android.')
-    parser.add_argument('-p', '--path', help='Directory where model and '
-                                             'config files are store',
-                        required=True)
-    parser.add_argument('-o', '--output', help='Directory where the files will '
-                                               'be writen, if non local gen/ '
-                                               'will be created',
-                        required=False)
-    args = parser.parse_args()
-    full_path = os.path.dirname(os.path.realpath(__file__))
-    if args.path == '.':
-        args.path = full_path
-    if not args.output:
-        args.output = full_path + 'gen/'
-    else:
-        args.output = full_path + args.output
-    Generator(args).go()
+
+def get_file_names(path, extension='.json'):
+    """
+    get a list of models and configuration from the given directory
+    :param path: path to the directory containing files
+    :param extension: extension of config files
+    :return: alphabetically sorted list of file names
+    """
+    fn = os.listdir(path)
+    l = []
+    for f in fn:
+        if f.endswith(extension, 4):
+            l.append(f)
+    l= sorted(l)
+    print (l)
+    return l

@@ -1,0 +1,11 @@
+{
+    "appPackageName": "edu.sanford.ravel",
+    "authority": "edu.sanford.ravel.provider",
+    "providerJavaPackage": "edu.sanford.ravel.provider",
+    "providerClassName": "RavelProvider",
+    "sqliteOpenHelperClassName": "RavelSQLiteOpenHelper",
+    "sqliteOpenHelperCallbacksClassName": "RavelSQLiteOpenHelperCallbacks",
+    "databaseFileName": "ravel.db",
+    "enableForeignKeys": true,
+    "useAnnotations": true
+}

@@ -1,0 +1,32 @@
+{
+    "documentation": "LedStatus model.",
+    "fields": [
+        {
+            "name": "led_status",
+            "type": "String"
+        },
+        {
+            "name": "iot_device",
+            "type": "String"
+        },        
+		{
+            "name": "origin",
+            "type": "String"
+        },        
+		{
+            "name": "time_stamp_x_gateway",
+            "type": "String"
+        },        
+		{
+            "name": "ack_m",
+            "type": "Boolean"
+        },        
+		{
+            "name": "ack_g",
+            "type": "Boolean"
+        }, 		{
+            "name": "ack_c",
+            "type": "Boolean"
+        }
+    ]
+}
