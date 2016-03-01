@@ -23,11 +23,9 @@
 # Created on 2/29/16.
 
 
-class Type(object):
-    def __init__(self, sqlType, nullableJavaType, notNullableJavaType):
-        self._mSqlType = sqlType
-		self._mNullableJavaType = nullableJavaType
-		self._mNotNullableJavaType = notNullableJavaType
+from .foreignkey import ForeignKey
+from .field import Field
+
 
 class Json:
         NAME = "name"
@@ -58,12 +56,3 @@ class Json:
         ON_DELETE_ACTION_SET_NULL = "SET NULL"
         ON_DELETE_ACTION_SET_DEFAULT = "SET DEFAULT"
         ON_DELETE_ACTION_CASCADE = "CASCADE"
-
-class Field:
-
-
-        def __init__(self):
-            self.mJsonName
-            self.mSqlType
-            self.mNullableJavaType
-            self.mNullableJavaType
