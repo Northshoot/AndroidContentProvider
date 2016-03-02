@@ -25,7 +25,7 @@
 
 from .foreignkey import ForeignKey
 from .field import Field
-
+import enum
 
 class Json:
         NAME = "name"
@@ -56,3 +56,25 @@ class Json:
         ON_DELETE_ACTION_SET_NULL = "SET NULL"
         ON_DELETE_ACTION_SET_DEFAULT = "SET DEFAULT"
         ON_DELETE_ACTION_CASCADE = "CASCADE"
+
+sOnDeleteAction = dict()
+
+class Action:
+    def __init__(self, json_name):
+        self.mJsonName = json_name
+        sOnDeleteAction[self.mJsonName] = self
+
+
+    def toSql(self):
+        return
+
+
+class OnDeleteAction(enum.Enum):
+    NO_ACTION = Action(Json.ON_DELETE_ACTION_NO_ACTION)
+    RESTRICT = Action(Json.ON_DELETE_ACTION_RESTRICT)
+    SET_NULL = Action(Json.ON_DELETE_ACTION_SET_NULL)
+    SET_DEFAULT = Action(Json.ON_DELETE_ACTION_SET_DEFAULT)
+    CASCADE = Action(Json.ON_DELETE_ACTION_CASCADE)
+
+
+

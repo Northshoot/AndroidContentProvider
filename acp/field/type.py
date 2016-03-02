@@ -24,7 +24,12 @@
 
 
 class Type:
-    def __init__(self, sql_type, nullable_jaava_type, not_nullable_java_type):
+    def __init__(self, sql_type, nullable_java_type, not_nullable_java_type):
         self._mSqlType = sql_type
-        self._mNullableJavaType = nullable_jaava_type
+        self._mNullableJavaType = nullable_java_type
         self._mNotNullableJavaType = not_nullable_java_type
+
+
+    @property
+    def simple_name(self):
+        pass

@@ -22,8 +22,10 @@
 #
 # Created on 3/1/16.
 
+from . import Json
 from .type import Type
 import acp.utils.tools as word_tools
+
 
 class Field:
         def __init__(self, model,  name, documentation,  type,  isId,  isIndex,  isNullable,  isAutoIncrement,
@@ -113,6 +115,26 @@ class Field:
             else:
                 return False
 
+        @property
+        def sql_type(self): return self.mSqlType
+
+        @property
+        def has_not_nullable_java_type(self):
+            return not self._mNullableJavaType == self._mNotNullableJavaType
+
+        @property
+        def nullable_java_type(self): return self._mNullableJavaType
+
+        @property
+        def not_nullable_java_type(self): return self._mNotNullableJavaType
+
+
+
+
+"""
+Particular field implementations
+"""
+
 
 class BooleanField(Field):
     """
@@ -120,14 +142,21 @@ class BooleanField(Field):
     """
 
     def __init__(self, *args, **kwargs):
+        self._mJsonName = Json.TYPE_BOOLEAN
+        self.mSqlType = "INTEGER"
+        self._mNullableJavaType = "String.class"
+        self._mNotNullableJavaType = "String.class"
         super(BooleanField, self).__init__(*args, **kwargs)
 
     @property
     def default_value(self):
         if self.mDefaultValue == "true":
             return "1"
-        if self.mDefaultValue == "false":
+        elif self.mDefaultValue == "false":
             return "0"
+        else:
+            raise ValueError("Models default value is not Boolean %s" %
+                             self.mDefaultValue)
 
 
 class IntegerField(Field):
@@ -136,10 +165,20 @@ class IntegerField(Field):
     """
 
     def __init__(self, *args, **kwargs):
+        self._mJsonName = Json.TYPE_INTEGER
+        self.mSqlType = "INTEGER"
+        self._mNullableJavaType = "Integer.class"
+        self._mNotNullableJavaType = "int.class"
         super(IntegerField, self).__init__(*args, **kwargs)
 
     @property
-    def default_value(self): return'\'' + self.mDefaultValue + '\''
+    def default_value(self):
+        try:
+            int(self.mDefaultValue)
+        except ValueError:
+            raise ValueError("Models default value is not integer %s" %
+                             self.mDefaultValue)
+        return'\'' + self.mDefaultValue + '\''
 
 
 class LongField(Field):
@@ -148,7 +187,20 @@ class LongField(Field):
     """
 
     def __init__(self, *args, **kwargs):
+        self._mJsonName = Json.TYPE_LONG
+        self.mSqlType = "INTEGER"
+        self._mNullableJavaType = "Long.class"
+        self._mNotNullableJavaType = "long.class"
         super(LongField, self).__init__(*args, **kwargs)
+
+    @property
+    def default_value(self):
+        try:
+            int(self.mDefaultValue)
+        except ValueError:
+            raise ValueError("Models default value is not long %s" %
+                             self.mDefaultValue)
+        return'\'' + self.mDefaultValue + '\''
 
 
 class DateField(Field):
@@ -157,6 +209,10 @@ class DateField(Field):
     """
 
     def __init__(self, *args, **kwargs):
+        self._mJsonName = Json.TYPE_DATE
+        self.mSqlType = "INTEGER"
+        self._mNullableJavaType = "Date.class"
+        self._mNotNullableJavaType = "Date.class"
         super(DateField, self).__init__(*args, **kwargs)
 
     @property
@@ -169,11 +225,22 @@ class EnumField(Field):
     """
 
     def __init__(self, *args, **kwargs):
+        self._mJsonName = Json.TYPE_ENUM
+        self.mSqlType = "INTEGER"
+        self._mNullableJavaType = "null"
+        self._mNotNullableJavaType = "null"
         super(EnumField, self).__init__(*args, **kwargs)
 
     @property
     def default_value(self):
-        return'\'' + self.mDefaultValue + '\''
+        try:
+            int(self.mDefaultValue)
+        except ValueError:
+            raise ValueError("Models default value is not ENUM %s" %
+                             self.mDefaultValue)
+
+    @property
+    def has_not_nullable_java_type(self): return False
 
 
 class FloatField(Field):
@@ -182,10 +249,20 @@ class FloatField(Field):
     """
 
     def __init__(self, *args, **kwargs):
+        self._mJsonName = Json.TYPE_FLOAT
+        self.mSqlType = "REAL"
+        self._mNullableJavaType = "Float.class"
+        self._mNotNullableJavaType = "float.class"
         super(FloatField, self).__init__(*args, **kwargs)
 
     @property
-    def default_value(self): return'\'' + self.mDefaultValue + '\''
+    def default_value(self):
+        try:
+            float(self.mDefaultValue)
+        except ValueError:
+            raise ValueError("Models default value is not flaot %s" %
+                             self.mDefaultValue)
+        return'\'' + self.mDefaultValue + '\''
 
 
 class DoubleField(Field):
@@ -194,9 +271,61 @@ class DoubleField(Field):
     """
 
     def __init__(self, *args, **kwargs):
+        self._mJsonName = Json.TYPE_DOUBLE
+        self.mSqlType = "REAL"
+        self._mNullableJavaType = "Double.class"
+        self._mNotNullableJavaType = "double.class"
         super(DoubleField, self).__init__(*args, **kwargs)
 
     @property
     def default_value(self):
+        try:
+            float(self.mDefaultValue)
+        except ValueError:
+            raise ValueError("Models default value is not double %s" %
+                             self.mDefaultValue)
         return'\'' + self.mDefaultValue + '\''
 
+
+class ByteArrayField(Field):
+    """
+
+    """
+
+    def __init__(self, *args, **kwargs):
+        self._mJsonName = Json.TYPE_BYTE_ARRAY
+        self.mSqlType = "BLOB"
+        self._mNullableJavaType = "byte[].class"
+        self._mNotNullableJavaType = "byte[].class"
+        super(DoubleField, self).__init__(*args, **kwargs)
+
+    @property
+    def default_value(self):
+        try:
+            float(self.mDefaultValue)
+        except ValueError:
+            raise ValueError("Models default value is not double %s" %
+                             self.mDefaultValue)
+        return'\'' + self.mDefaultValue + '\''
+
+
+class StringField(Field):
+    """
+
+    """
+
+    def __init__(self, *args, **kwargs):
+        self._mJsonName = Json.TYPE_STRING
+        self.mSqlType = "TEXT"
+        self._mNullableJavaType = "String.class"
+        self._mNotNullableJavaType = "String.class"
+        super(DoubleField, self).__init__(*args, **kwargs)
+
+    @property
+    def default_value(self):
+        try:
+            float(self.mDefaultValue)
+        except ValueError:
+            raise ValueError("Models default value is not double %s" %
+                             self.mDefaultValue)
+        return'\'' + self.mDefaultValue + '\''
