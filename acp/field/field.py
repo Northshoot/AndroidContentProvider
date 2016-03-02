@@ -24,6 +24,7 @@
 
 from . import Json
 import acp.utils.tools as word_tools
+from acp.utils.logger import logger as Log
 
 
 class Field:
@@ -180,9 +181,10 @@ class BooleanField(Field):
         self.mType = "BOOLEAN"
         self._mJsonName = Json.TYPE_BOOLEAN
         self.mSqlType = "INTEGER"
-        self._mNullableJavaType = "String.class"
-        self._mNotNullableJavaType = "String.class"
+        self._mNullableJavaType = "Boolean"
+        self._mNotNullableJavaType = "boolean"
         super(BooleanField, self).__init__(*args, **kwargs)
+        Log.debug("Created: " + self.__str__())
 
     @property
     def default_value(self):
@@ -204,9 +206,10 @@ class IntegerField(Field):
         self.mType = "INTEGER"
         self._mJsonName = Json.TYPE_INTEGER
         self.mSqlType = "INTEGER"
-        self._mNullableJavaType = "Integer.class"
-        self._mNotNullableJavaType = "int.class"
+        self._mNullableJavaType = "Integer"
+        self._mNotNullableJavaType = "int"
         super(IntegerField, self).__init__(*args, **kwargs)
+        Log.debug("Created: " + self.__str__())
 
     @property
     def default_value(self):
@@ -228,9 +231,10 @@ class LongField(Field):
         self.mType = "LONG"
         self._mJsonName = Json.TYPE_LONG
         self.mSqlType = "INTEGER"
-        self._mNullableJavaType = "Long.class"
-        self._mNotNullableJavaType = "long.class"
+        self._mNullableJavaType = "Long"
+        self._mNotNullableJavaType = "long"
         super(LongField, self).__init__(*args, **kwargs)
+        Log.debug("Created: " + self.__str__())
 
     @property
     def default_value(self):
@@ -252,9 +256,10 @@ class DateField(Field):
         self.mType = "DATE"
         self._mJsonName = Json.TYPE_DATE
         self.mSqlType = "INTEGER"
-        self._mNullableJavaType = "Date.class"
-        self._mNotNullableJavaType = "Date.class"
+        self._mNullableJavaType = "Date"
+        self._mNotNullableJavaType = self._mNullableJavaType
         super(DateField, self).__init__(*args, **kwargs)
+        Log.debug("Created: " + self.__str__())
 
     @property
     def default_value(self): return'\'' + self.mDefaultValue + '\''
@@ -272,6 +277,7 @@ class EnumField(Field):
         self._mNullableJavaType = "null"
         self._mNotNullableJavaType = "null"
         super(EnumField, self).__init__(*args, **kwargs)
+        Log.debug("Created: " + self.__str__())
 
     @property
     def default_value(self):
@@ -295,9 +301,10 @@ class FloatField(Field):
         self.mType = "FLOAT"
         self._mJsonName = Json.TYPE_FLOAT
         self.mSqlType = "REAL"
-        self._mNullableJavaType = "Float.class"
-        self._mNotNullableJavaType = "float.class"
+        self._mNullableJavaType = "Float"
+        self._mNotNullableJavaType = "float"
         super(FloatField, self).__init__(*args, **kwargs)
+        Log.debug("Created: " + self.__str__())
 
     @property
     def default_value(self):
@@ -318,9 +325,10 @@ class DoubleField(Field):
         self.mType = "DOUBLE"
         self._mJsonName = Json.TYPE_DOUBLE
         self.mSqlType = "REAL"
-        self._mNullableJavaType = "Double.class"
-        self._mNotNullableJavaType = "double.class"
+        self._mNullableJavaType = "Double"
+        self._mNotNullableJavaType = "double"
         super(DoubleField, self).__init__(*args, **kwargs)
+        Log.debug("Created: " + self.__str__())
 
     @property
     def default_value(self):
@@ -341,9 +349,10 @@ class ByteArrayField(Field):
         self.mType = "BYTE_ARRAY"
         self._mJsonName = Json.TYPE_BYTE_ARRAY
         self.mSqlType = "BLOB"
-        self._mNullableJavaType = "byte[].class"
-        self._mNotNullableJavaType = "byte[].class"
+        self._mNullableJavaType = "byte[]"
+        self._mNotNullableJavaType = "byte[]"
         super(DoubleField, self).__init__(*args, **kwargs)
+        Log.debug("Created: " + self.__str__())
 
     @property
     def default_value(self):
@@ -364,9 +373,10 @@ class StringField(Field):
         self.mType = "STRING"
         self._mJsonName = Json.TYPE_STRING
         self.mSqlType = "TEXT"
-        self._mNullableJavaType = "String.class"
-        self._mNotNullableJavaType = "String.class"
+        self._mNullableJavaType = "String"
+        self._mNotNullableJavaType = "String"
         super(DoubleField, self).__init__(*args, **kwargs)
+        Log.debug("Created: " + self.__str__())
 
     @property
     def default_value(self):
@@ -374,6 +384,6 @@ class StringField(Field):
             float(self.mDefaultValue)
             return'\'' + self.mDefaultValue + '\''
         except ValueError:
+            Log.error("Error in getting default value from: " + self.__str__())
             raise ValueError("Models default value is not double %s" %
                              self.mDefaultValue)
-
