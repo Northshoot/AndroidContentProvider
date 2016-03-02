@@ -24,8 +24,9 @@
 
 
 from .foreignkey import ForeignKey
-from .field import Field
+from .field import *
 import enum
+
 
 class Json:
         NAME = "name"
@@ -59,17 +60,28 @@ class Json:
 
 sOnDeleteAction = dict()
 
+
 class Action:
     def __init__(self, json_name):
         self.mJsonName = json_name
         sOnDeleteAction[self.mJsonName] = self
 
+    @property
+    def sql_name(self):
+        return sOnDeleteAction.get(self.mJsonName).replace('_', ' ')
 
-    def toSql(self):
-        return
+    def from_json_name(self, json_name):
+        try:
+            action = sOnDeleteAction.get(json_name)
+            return action
+        except KeyError:
+            raise KeyError("No such action: %s" %json_name)
 
 
 class OnDeleteAction(enum.Enum):
+    """
+    On delete action representation in android/sql
+    """
     NO_ACTION = Action(Json.ON_DELETE_ACTION_NO_ACTION)
     RESTRICT = Action(Json.ON_DELETE_ACTION_RESTRICT)
     SET_NULL = Action(Json.ON_DELETE_ACTION_SET_NULL)

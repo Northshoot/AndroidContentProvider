@@ -23,33 +23,32 @@
 # Created on 3/1/16.
 
 from . import Json
-from .type import Type
 import acp.utils.tools as word_tools
 
 
 class Field:
-        def __init__(self, model,  name, documentation,  type,  isId,  isIndex,  isNullable,  isAutoIncrement,
-             defaultValue,  enumName,  enumValues, foreignKey):
-            self.type_name = dict()
-            self.on_delete_action = dict()
+        def __init__(self, model,  name, documentation,  isId,  isIndex,
+                     isNullable,  isAutoIncrement, defaultValue,  enumName,
+                     enumValues, foreign_key = None):
             self.mEnumValues = []
             self.mModel = model
             self.mName = name
             self.mDocumentation = documentation
-            self.mType = Type.fromJsonName(type)
             self.mIsId = isId
             self.mIsIndex = isIndex
             self.mIsNullable = isNullable
             self.mIsAutoIncrement = isAutoIncrement
             self.mDefaultValue = defaultValue
             self.mEnumName = enumName
+            self.mIsForeign = False
             if enumValues:
-                self.mEnumValues.addAll(enumValues)
-            self.mForeignKey = foreignKey
+                self.mEnumValues + enumValues
+            self.mForeignKey = foreign_key
             self.mIsAmbiguous = False
 
         def get_as_foreign_field(self, path, force_nullable):
-            if force_nullable: self.mIsNullable = True
+            if force_nullable:
+                self.mIsNullable = True
             res = Field(self.mEntity, self.mName, self.mDocumentation,
                         self.mType.mJsonName, self.mIsId, self.mIsIndex,
                         self.isNullable, self.mIsAutoIncrement,
@@ -60,6 +59,17 @@ class Field:
             res.mPath = path
             return res
 
+        def __str__(self):
+            return "Field [mName=" + self.mName + ", " \
+                   "mDocumentation=" + self.mDocumentation + \
+                   ", mType=" + self.mType + ", mIsId=" + self.mIsId + ", " \
+                   "mIsIndex=" + self.mIsIndex + \
+                   ", mIsNullable=" + self.mIsNullable + \
+                   ", mIsAutoIncrement=" + self.mIsAutoIncrement + \
+                   ", mDefaultValue=" + self.mDefaultValue + \
+                   ", mEnumName=" + self. mEnumName + \
+                   ", mEnumValues=" + self.mEnumValues + \
+                   ", mForeignKey=" + self.mForeignKey + "]"
         @property
         def model(self): return self.mModel
 
@@ -88,12 +98,14 @@ class Field:
 
         @property
         def prefix_name(self):
-            return self.model.name_lower_case + "__" + self.name_lower_case
+            return self.model.name_lower_case + "_" + self.name_lower_case
 
         @property
         def name_or_prefix(self):
-            if self.mIsAmbiguous: return self.prefix_name
-            else: return self.mName
+            if self.mIsAmbiguous:
+                return self.prefix_name
+            else:
+                return self.mName
 
         @property
         def type(self): return self.type
@@ -128,11 +140,34 @@ class Field:
         @property
         def not_nullable_java_type(self): return self._mNotNullableJavaType
 
+        @@property
+        def foreign_key(self): return self.mForeignKey
 
-
+        @property
+        def is_foreign_key(self): return self.mIsForeign
 
 """
 Particular field implementations
+getDefaultValue
+ public boolean getHasDefaultValue() {
+        return mDefaultValue != null && mDefaultValue.length() > 0;
+    }
+getIsNullable
+
+    public String getJavaTypeSimpleName() {
+        if (mType == Type.ENUM) {
+            return mEnumName;
+        }
+        if (mIsNullable) {
+            return mType.getNullableJavaType().getSimpleName();
+        }
+        return mType.getNotNullableJavaType().getSimpleName();
+    }
+
+    public boolean getIsConvertionNeeded() {
+        return !mIsNullable && mType.hasNotNullableJavaType();
+    }
+isEnum
 """
 
 
@@ -142,6 +177,7 @@ class BooleanField(Field):
     """
 
     def __init__(self, *args, **kwargs):
+        self.mType = "BOOLEAN"
         self._mJsonName = Json.TYPE_BOOLEAN
         self.mSqlType = "INTEGER"
         self._mNullableJavaType = "String.class"
@@ -165,6 +201,7 @@ class IntegerField(Field):
     """
 
     def __init__(self, *args, **kwargs):
+        self.mType = "INTEGER"
         self._mJsonName = Json.TYPE_INTEGER
         self.mSqlType = "INTEGER"
         self._mNullableJavaType = "Integer.class"
@@ -175,10 +212,11 @@ class IntegerField(Field):
     def default_value(self):
         try:
             int(self.mDefaultValue)
+            return'\'' + self.mDefaultValue + '\''
         except ValueError:
             raise ValueError("Models default value is not integer %s" %
                              self.mDefaultValue)
-        return'\'' + self.mDefaultValue + '\''
+
 
 
 class LongField(Field):
@@ -187,6 +225,7 @@ class LongField(Field):
     """
 
     def __init__(self, *args, **kwargs):
+        self.mType = "LONG"
         self._mJsonName = Json.TYPE_LONG
         self.mSqlType = "INTEGER"
         self._mNullableJavaType = "Long.class"
@@ -197,10 +236,11 @@ class LongField(Field):
     def default_value(self):
         try:
             int(self.mDefaultValue)
+            return'\'' + self.mDefaultValue + '\''
         except ValueError:
             raise ValueError("Models default value is not long %s" %
                              self.mDefaultValue)
-        return'\'' + self.mDefaultValue + '\''
+
 
 
 class DateField(Field):
@@ -209,6 +249,7 @@ class DateField(Field):
     """
 
     def __init__(self, *args, **kwargs):
+        self.mType = "DATE"
         self._mJsonName = Json.TYPE_DATE
         self.mSqlType = "INTEGER"
         self._mNullableJavaType = "Date.class"
@@ -225,6 +266,7 @@ class EnumField(Field):
     """
 
     def __init__(self, *args, **kwargs):
+        self.mType = "ENUM"
         self._mJsonName = Json.TYPE_ENUM
         self.mSqlType = "INTEGER"
         self._mNullableJavaType = "null"
@@ -235,6 +277,7 @@ class EnumField(Field):
     def default_value(self):
         try:
             int(self.mDefaultValue)
+            return'\'' + self.mDefaultValue + '\''
         except ValueError:
             raise ValueError("Models default value is not ENUM %s" %
                              self.mDefaultValue)
@@ -249,6 +292,7 @@ class FloatField(Field):
     """
 
     def __init__(self, *args, **kwargs):
+        self.mType = "FLOAT"
         self._mJsonName = Json.TYPE_FLOAT
         self.mSqlType = "REAL"
         self._mNullableJavaType = "Float.class"
@@ -259,10 +303,10 @@ class FloatField(Field):
     def default_value(self):
         try:
             float(self.mDefaultValue)
+            return'\'' + self.mDefaultValue + '\''
         except ValueError:
             raise ValueError("Models default value is not flaot %s" %
                              self.mDefaultValue)
-        return'\'' + self.mDefaultValue + '\''
 
 
 class DoubleField(Field):
@@ -271,6 +315,7 @@ class DoubleField(Field):
     """
 
     def __init__(self, *args, **kwargs):
+        self.mType = "DOUBLE"
         self._mJsonName = Json.TYPE_DOUBLE
         self.mSqlType = "REAL"
         self._mNullableJavaType = "Double.class"
@@ -281,10 +326,10 @@ class DoubleField(Field):
     def default_value(self):
         try:
             float(self.mDefaultValue)
+            return'\'' + self.mDefaultValue + '\''
         except ValueError:
             raise ValueError("Models default value is not double %s" %
                              self.mDefaultValue)
-        return'\'' + self.mDefaultValue + '\''
 
 
 class ByteArrayField(Field):
@@ -293,6 +338,7 @@ class ByteArrayField(Field):
     """
 
     def __init__(self, *args, **kwargs):
+        self.mType = "BYTE_ARRAY"
         self._mJsonName = Json.TYPE_BYTE_ARRAY
         self.mSqlType = "BLOB"
         self._mNullableJavaType = "byte[].class"
@@ -303,10 +349,10 @@ class ByteArrayField(Field):
     def default_value(self):
         try:
             float(self.mDefaultValue)
+            return'\'' + self.mDefaultValue + '\''
         except ValueError:
             raise ValueError("Models default value is not double %s" %
                              self.mDefaultValue)
-        return'\'' + self.mDefaultValue + '\''
 
 
 class StringField(Field):
@@ -315,6 +361,7 @@ class StringField(Field):
     """
 
     def __init__(self, *args, **kwargs):
+        self.mType = "STRING"
         self._mJsonName = Json.TYPE_STRING
         self.mSqlType = "TEXT"
         self._mNullableJavaType = "String.class"
@@ -325,7 +372,8 @@ class StringField(Field):
     def default_value(self):
         try:
             float(self.mDefaultValue)
+            return'\'' + self.mDefaultValue + '\''
         except ValueError:
             raise ValueError("Models default value is not double %s" %
                              self.mDefaultValue)
-        return'\'' + self.mDefaultValue + '\''
+
