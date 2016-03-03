@@ -22,9 +22,27 @@
 #
 # Created on 2/29/16.
 
+from . import DataModel
+
 
 class ForeignKey:
     """
-    class for foreign key field
+
     """
-    def __init__(self):
+
+    def __init__(self, model_name, on_delete_action):
+        self.mModelName = model_name
+        self.mOnDeleteAction = on_delete_action
+
+    def __str__(self):
+        return "ForeignKey [mModelName=" + self.mModelName + ", " \
+                "mOnDeleteAction= " + self.mOnDeleteAction + "]"
+
+    @property
+    def model_name(self): return self.mModelName
+
+    @property
+    def model(self): return DataModel.get_by_name(self.mModelName)
+
+    @property
+    def on_delete_action(self): return self.mOnDeleteAction

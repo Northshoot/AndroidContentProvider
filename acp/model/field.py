@@ -24,13 +24,18 @@
 
 from . import Json
 import acp.utils.tools as word_tools
-from acp.utils.logger import logger as Log
+from . import Log
 
 
 class Field:
         def __init__(self, model,  name, documentation,  isId,  isIndex,
                      isNullable,  isAutoIncrement, defaultValue,  enumName,
-                     enumValues, foreign_key = None):
+                     enumValues, foreign_key=None):
+            self.mType = None #have to be overriden by children
+            self._mJsonName = None #have to be overriden by children
+            self.mSqlType = None #have to be overriden by children
+            self._mNullableJavaType = None #have to be overriden by children
+            self._mNotNullableJavaType = None #have to be overriden by children
             self.mEnumValues = []
             self.mModel = model
             self.mName = name
@@ -50,9 +55,9 @@ class Field:
         def get_as_foreign_field(self, path, force_nullable):
             if force_nullable:
                 self.mIsNullable = True
-            res = Field(self.mEntity, self.mName, self.mDocumentation,
+            res = Field(self.mModel, self.mName, self.mDocumentation,
                         self.mType.mJsonName, self.mIsId, self.mIsIndex,
-                        self.isNullable, self.mIsAutoIncrement,
+                        self.mIsNullable, self.mIsAutoIncrement,
                         self.mDefaultValue, self.mEnumName,
                         self.mEnumValues, self.mForeignKey)
             res.mIsForeign = True
@@ -69,7 +74,7 @@ class Field:
                    ", mIsAutoIncrement=" + self.mIsAutoIncrement + \
                    ", mDefaultValue=" + self.mDefaultValue + \
                    ", mEnumName=" + self. mEnumName + \
-                   ", mEnumValues=" + self.mEnumValues + \
+                   ", mEnumValues=" + str(self.mEnumValues) + \
                    ", mForeignKey=" + self.mForeignKey + "]"
         @property
         def model(self): return self.mModel
@@ -141,7 +146,14 @@ class Field:
         @property
         def not_nullable_java_type(self): return self._mNotNullableJavaType
 
-        @@property
+        @property
+        def simple_java_name(self):
+            if self.mIsNullable:
+                return self.nullable_java_type
+            if not self.mIsNullable:
+                return self.not_nullable_java_type
+
+        @property
         def foreign_key(self): return self.mForeignKey
 
         @property
@@ -178,12 +190,12 @@ class BooleanField(Field):
     """
 
     def __init__(self, *args, **kwargs):
+        super(BooleanField, self).__init__(*args, **kwargs)
         self.mType = "BOOLEAN"
         self._mJsonName = Json.TYPE_BOOLEAN
         self.mSqlType = "INTEGER"
         self._mNullableJavaType = "Boolean"
         self._mNotNullableJavaType = "boolean"
-        super(BooleanField, self).__init__(*args, **kwargs)
         Log.debug("Created: " + self.__str__())
 
     @property
@@ -291,6 +303,8 @@ class EnumField(Field):
     @property
     def has_not_nullable_java_type(self): return False
 
+    @property
+    def simple_java_name(self): return "null"
 
 class FloatField(Field):
     """
@@ -312,7 +326,7 @@ class FloatField(Field):
             float(self.mDefaultValue)
             return'\'' + self.mDefaultValue + '\''
         except ValueError:
-            raise ValueError("Models default value is not flaot %s" %
+            raise ValueError("Models default value is not float %s" %
                              self.mDefaultValue)
 
 
@@ -351,7 +365,7 @@ class ByteArrayField(Field):
         self.mSqlType = "BLOB"
         self._mNullableJavaType = "byte[]"
         self._mNotNullableJavaType = "byte[]"
-        super(DoubleField, self).__init__(*args, **kwargs)
+        super(ByteArrayField, self).__init__(*args, **kwargs)
         Log.debug("Created: " + self.__str__())
 
     @property
@@ -375,7 +389,7 @@ class StringField(Field):
         self.mSqlType = "TEXT"
         self._mNullableJavaType = "String"
         self._mNotNullableJavaType = "String"
-        super(DoubleField, self).__init__(*args, **kwargs)
+        super(StringField, self).__init__(*args, **kwargs)
         Log.debug("Created: " + self.__str__())
 
     @property
@@ -387,3 +401,6 @@ class StringField(Field):
             Log.error("Error in getting default value from: " + self.__str__())
             raise ValueError("Models default value is not double %s" %
                              self.mDefaultValue)
+
+
+

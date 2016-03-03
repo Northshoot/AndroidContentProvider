@@ -24,9 +24,12 @@
 
 import json
 import copy
+import acp.utils.tools as word_tools
+
 
 class AndroidModel:
     pass
+
 
 class DataModel:
     """
@@ -50,18 +53,19 @@ class DataModel:
     PREFIX = ".PREFIX_"
     ALL_MODELS = dict()
 
-    def __init__(self, *args, file_name=None, **kwargs):
+    def __init__(self, file_name=None, **kwargs):
 
-        self.model = None
+        self.mModel = None
         self._json_model = None
-        self.name = None
+        self.mName = None
         if file_name:
             self._load_model_from_file(file_name)
-            self.name = file_name
+            self.mName = file_name
         else:
-            self.name = kwargs['name']
-        DataModel.ALL_MODELS[self.name] = self
-        self.fields = []
+            self.mName = kwargs['name']
+        DataModel.ALL_MODELS[self.mName] = self
+        self.mFields = []
+        self.mConstrains = []
 
     def _load_model_from_file(self, file):
         with open(file, encoding='utf-8') as data_file:
@@ -79,7 +83,7 @@ class DataModel:
         return copy.deepcopy(self.fields)
 
     def get_fields_including_joins(self):
-        return self.get_fields_including_joins(False, "", False);
+        return self.get_fields_including_joins(False, "", False)
 
     def get_fields_including_joins(self, isForeign, path, forceNullable):
         ret = []
@@ -88,18 +92,57 @@ class DataModel:
                 return
 
             if isForeign:
-                ret.add(field.asForeignField(path, forceNullable));
+                ret.add(field.asForeignField(path, forceNullable))
             else:
                 ret.add(field)
 
-            ForeignKey foreignKey = field.getForeignKey();
-            if (foreignKey == null) continue;
+            foreignKey = field.getForeignKey()
+            if foreignKey:
+                newPath = path + foreignKey.getEntity().getNameCamelCase()
+                # If the field is nullable, all fields of the foreign (
+                # joined) entity must also be nullable
+                forceNullable = field.getIsNullable()
+                #Recurse
+                ret + foreignKey.getEntity().getFieldsIncludingJoins(True,
+                                                                     newPath, forceNullable)
 
-            String newPath = path + foreignKey.getEntity().getNameCamelCase();
-            // If the field is nullable, all fields of the foreign (joined) entity must also be nullable
-            forceNullable = field.getIsNullable();
-            // Recurse
-            res.addAll(foreignKey.getEntity().getFieldsIncludingJoins(true, newPath, forceNullable));
+        return ret
 
+    def get_joined_models(self):
+        ret = []
+        for field in self.mFields:
+            if field.foreign_key:
+                ret.add(field.foreign_key.model)
+                ret + field.foreign_key.model.get_joined_models()
+        return ret
 
-        return res;
+    def get_field_by_name(self, name):
+        for field in self.mFields:
+            if field.name_lower_case == name.lower():
+                return field
+        return None
+
+    def add_constrain(self, constrain):
+        self.mConstrains.add(constrain)
+
+    @property
+    def constrains(self): return self.mConstrains
+
+    @property
+    def name_camel_case(self):
+        return word_tools.detect_conversion_method(self.mName)
+
+    @property
+    def package_name(self):
+        return self.name_lower_case.replace("_", "")
+
+    @property
+    def name_lower_case(self): return self.mName.lower()
+
+    @property
+    def name_upper_case(self):
+        return self.mName.upper()
+
+    @classmethod
+    def get_by_name(cls, mModelName):
+        pass
