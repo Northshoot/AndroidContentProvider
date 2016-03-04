@@ -25,10 +25,45 @@
 import json
 import copy
 import acp.utils.tools as word_tools
+from . import Log
 
 
-class AndroidModel:
-    pass
+class Model:
+
+    ALL_DATA_MODELS = []
+    def __init__(self):
+        self.mHeader = None
+        self.data_models = []
+
+    @classmethod
+    def add_model(self, model):
+        if isinstance(model, DataModel):
+            self.data_models.append(model)
+        else:
+            Log.error("Trying to add model that is not instance of DataModel "
+                      "but: %s" % model.__class__.__name__)
+            raise TypeError("Expected obj of type DataModel, got: %s"
+                            % model.__class__.__name__)
+
+    def __str__(self):
+        return self.ALL_DATA_MODELS.__str__()
+
+    @classmethod
+    def get_models(cls):
+        return cls.ALL_DATA_MODELS
+
+    @classmethod
+    def flag_ambiguous_fields(cls):
+        for m in cls.ALL_DATA_MODELS:
+            m.flag_ambiguous_fields()
+
+        for m in cls.ALL_DATA_MODELS:
+            for f in m.get_fields():
+                if f.is_ambiguous:
+                    Log.info("\nNote: in the table '" + m.name_lower_case +
+                             "', the column '" + f.name + "' will be named '" +
+                             f.prefixed_name + "' to avoid ambiguities "
+                             "when joining.\n")
 
 
 class DataModel:
@@ -63,38 +98,51 @@ class DataModel:
             self.mName = file_name
         else:
             self.mName = kwargs['name']
-        DataModel.ALL_MODELS[self.mName] = self
         self.mFields = []
         self.mConstrains = []
+        #add self to global list
+        DataModel.ALL_MODELS[self.mName] = self
+
+    @classmethod
+    def get_by_name(cls, mModelName):
+        try:
+            return cls.ALL_MODELS[mModelName]
+        except KeyError:
+            raise KeyError("No such model: %s" % mModelName)
+
+
+
+    @classmethod
+    def add_model(cls, model):
+        #TODO: check the right type
+        cls.MODELS_LIST.append(model)
 
     def _load_model_from_file(self, file):
         with open(file, encoding='utf-8') as data_file:
             self._json_model = json.loads(data_file.read())
 
-        print(self._json_model)
+        Log.debug(self._json_model)
 
-    def add_field(self, field):
-        self.fields.append(field)
-
-    def add_field(self, indx, field):
-        self.fields.insert(indx, field)
+    def add_field(self, field, indx=None):
+        if indx:
+            self.mFields.insert(indx, field)
+        else:
+            self.mFields.append(field)
 
     def get_fields(self):
-        return copy.deepcopy(self.fields)
+        return copy.deepcopy(self.mFields)
 
-    def get_fields_including_joins(self):
-        return self.get_fields_including_joins(False, "", False)
-
-    def get_fields_including_joins(self, isForeign, path, forceNullable):
+    def get_fields_including_joins(self, isForeign=False, path="",
+                                   forceNullable=False):
         ret = []
-        for field in  self.fields:
+        for field in self.mFields:
             if not field.getIsId() and not isForeign:
                 return
 
             if isForeign:
-                ret.add(field.asForeignField(path, forceNullable))
+                ret.append(field.asForeignField(path, forceNullable))
             else:
-                ret.add(field)
+                ret.append(field)
 
             foreignKey = field.getForeignKey()
             if foreignKey:
@@ -102,9 +150,9 @@ class DataModel:
                 # If the field is nullable, all fields of the foreign (
                 # joined) entity must also be nullable
                 forceNullable = field.getIsNullable()
-                #Recurse
-                ret + foreignKey.getEntity().getFieldsIncludingJoins(True,
-                                                                     newPath, forceNullable)
+                # Recurse
+                ret + foreignKey.getEntity()\
+                    .getFieldsIncludingJoins(True, newPath, forceNullable)
 
         return ret
 
@@ -123,7 +171,7 @@ class DataModel:
         return None
 
     def add_constrain(self, constrain):
-        self.mConstrains.add(constrain)
+        self.mConstrains.append(constrain)
 
     @property
     def constrains(self): return self.mConstrains
@@ -143,6 +191,12 @@ class DataModel:
     def name_upper_case(self):
         return self.mName.upper()
 
-    @classmethod
-    def get_by_name(cls, mModelName):
-        pass
+    def flag_ambiguous_fields(self):
+        all_j_fields = self.get_fields_including_joins()
+        for f1 in all_j_fields:
+            for f2 in all_j_fields:
+                if f1 == f2:
+                    continue
+                if f1.name_lower_case == f2.name_lower_case:
+                    f1.mIsAmbiguous()
+                    f2.mIsAmbiguous()

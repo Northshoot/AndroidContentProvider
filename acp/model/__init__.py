@@ -29,6 +29,29 @@ from .model import *
 import enum
 from acp.utils.logger import logger as Log
 
+
+class Constraint:
+
+    class Json:
+        def __init__(self):
+            self.NAME = "name";
+            selfDEFINITION = "definition";
+
+
+    def __init__(self, name, definition):
+        self.mName = name
+        self.mDefinition=definition
+
+    @property
+    def name(self): return self.mName
+
+    @property
+    def definition(self): return self.definition
+
+    def __str__(self):
+        return "Constraint [mName=" + self.mName + ", mDefinition=" + \
+               self.mDefinition + "]"
+
 class Json:
         NAME = "name"
         TYPE = "type"

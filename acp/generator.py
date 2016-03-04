@@ -8,7 +8,7 @@
 #
 # Copyright (C) 2016 Laurynas Riliskis
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
+# Licensed under the Apache License, Version 2.0 (the "License")
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
@@ -25,6 +25,10 @@
 from .utils.tools import get_file_names
 from .app import Application
 from .model.model import DataModel
+from .utils.logger import logger as Log
+from .model import Json, Model, DataModel
+
+
 
 class Generator:
     def __init__(self, args):
@@ -36,6 +40,16 @@ class Generator:
         self.models = []
         for mf in self.models_file_names:
             self.models.append(DataModel(file_name=mf))
+
+    def load_models(self):
+        # load files
+        modelFiles = []
+        modelFiles.sort()
+
+        for mFile in modelFiles:
+
+
+        Log.debug(Model.get().toString())
 
     def make_manifest(self):
         pass
@@ -87,6 +101,7 @@ class Generator:
         pass
 
     def go(self):
+        self.load_models()
         self.make_table_columns()
         self.make_table_columns()
         self.make_models()

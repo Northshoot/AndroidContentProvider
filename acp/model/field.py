@@ -76,6 +76,7 @@ class Field:
                    ", mEnumName=" + self. mEnumName + \
                    ", mEnumValues=" + str(self.mEnumValues) + \
                    ", mForeignKey=" + self.mForeignKey + "]"
+
         @property
         def model(self): return self.mModel
 
@@ -115,6 +116,9 @@ class Field:
 
         @property
         def type(self): return self.type
+
+        @property
+        def is_ambiguous(self): return self.mIsAmbiguous
 
         @property
         def is_id(self): return self.mIsId
@@ -159,29 +163,8 @@ class Field:
         @property
         def is_foreign_key(self): return self.mIsForeign
 
-"""
-Particular field implementations
-getDefaultValue
- public boolean getHasDefaultValue() {
-        return mDefaultValue != null && mDefaultValue.length() > 0;
-    }
-getIsNullable
-
-    public String getJavaTypeSimpleName() {
-        if (mType == Type.ENUM) {
-            return mEnumName;
-        }
-        if (mIsNullable) {
-            return mType.getNullableJavaType().getSimpleName();
-        }
-        return mType.getNotNullableJavaType().getSimpleName();
-    }
-
-    public boolean getIsConvertionNeeded() {
-        return !mIsNullable && mType.hasNotNullableJavaType();
-    }
-isEnum
-"""
+        def set_is_ambiguous(self, val=True):
+            self.mIsAmbiguous = val
 
 
 class BooleanField(Field):
@@ -233,7 +216,6 @@ class IntegerField(Field):
                              self.mDefaultValue)
 
 
-
 class LongField(Field):
     """
 
@@ -256,7 +238,6 @@ class LongField(Field):
         except ValueError:
             raise ValueError("Models default value is not long %s" %
                              self.mDefaultValue)
-
 
 
 class DateField(Field):
@@ -403,4 +384,18 @@ class StringField(Field):
                              self.mDefaultValue)
 
 
+class EnumValue:
+    """
+
+    """
+    def __init__(self, name, documentation):
+        self.mName = name
+        self.mDocumentation = documentation
+
+
+    @property
+    def name(self): return self.mName
+
+    @property
+    def get_documentation(self): return self.mDocumentation
 
