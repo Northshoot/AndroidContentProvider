@@ -75,3 +75,16 @@ def detect_conversion_method(data):
         return lower_case_underscore_to_camel_case
     else:
         return camel_case_to_lower_case_underscore
+
+
+def write_to_file(file_name, data):
+    try:
+        if not os.path.exists(os.path.dirname(file_name)):
+            os.makedirs(os.path.dirname(file_name))
+        open(file_name, 'wt').write(data)
+    except IOError as e:
+        eno, strerror = e.args
+        print("Filename {0} resulted in I/O error({1}): {2}".format(file_name, eno, strerror))
+    except:
+        print("Unexpected error:", sys.exc_info()[0])
+        raise

@@ -22,19 +22,66 @@
 #
 # Created on 2/24/16.
 
-from jinja2 import BaseLoader, TemplateNotFound
-from os.path import join, exists, getmtime
+
+from jinja2 import FileSystemLoader, Environment
+from ..utils.logger import logger as Log
+from ..utils.tools import write_to_file
 
 
-class Base(BaseLoader):
-    def __init__(self, path):
-        self.path = path
+class TemplateWriter:
+    def __init__(self, **kwargs):
+        try:
+            for key in ('build_path', 'file_name',  'tmpl_data'):
+                setattr(self, key, kwargs[key])
+        except KeyError:
+            raise KeyError("Missing argument in StringObject %s"
+                                         %key)
 
-    def get_source(self, environment, template):
-        path = join(self.path, template)
-        if not exists(path):
-            raise TemplateNotFound(template)
-        mtime = getmtime(path)
-        with file(path) as f:
-            source = f.read().decode('utf-8')
-        return source, path, lambda: mtime == getmtime(path)
+    @property
+    def render_string(self):
+        """
+        OBS! all templates must use data dict!
+        :return: rendered sring
+        """
+        return self.tmpl.render(data=self.tmpl_data)
+
+    def render_file(self):
+        Log.debbug(">>Rendering to file %s in path %s." %(self.file_name,
+                                                  self.build_path))
+        write_to_file(self.build_path+'/' + self.file_name, self.render_string)
+
+
+
+class FileObject(TemplateWriter):
+    """
+    files object serve as a container for component
+    the components gives write path, template, and data to the file object
+    file object renders the string and provides method to write to the file
+
+    FileObject( write_path=,
+                file_name=,
+                tmpl_path=,
+                tmpl_name=,
+                tmpl_data=)
+
+    """
+    def __init__(self, **kwargs):
+        # set mandatory keywords
+        super().__init__(**kwargs)
+        key = None
+        try:
+            for key in ('tmpl_path', 'tmpl_name'):
+                setattr(self, key, kwargs[key])
+        except KeyError:
+            raise KeyError("Missing argument in FileObject %s" %key)
+        # set or create additional
+        if 'tmpl_render' in kwargs:
+            self.tmpl_render = kwargs['tmpl_render']
+        else:
+            self.tmpl_render = Environment(loader=FileSystemLoader([
+                self.tmpl_path]), lstrip_blocks=True, trim_blocks=True)
+        if 'tmpl' in kwargs:
+            self.tmpl = kwargs['tmpl']
+        else:
+            self.tmpl = self.tmpl_render.get_template(self.tmpl_name)
+
