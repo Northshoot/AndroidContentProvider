@@ -20,16 +20,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Created on 3/1/16.
+# Created on 3/7/16.
 
 
-class Type:
-    def __init__(self, sql_type, nullable_java_type, not_nullable_java_type):
-        self._mSqlType = sql_type
-        self._mNullableJavaType = nullable_java_type
-        self._mNotNullableJavaType = not_nullable_java_type
+class Constraint:
 
+    class Json:
+        def __init__(self):
+            self.NAME = "name";
+            self.DEFINITION = "definition";
+
+    def __init__(self, name, definition):
+        self.mName = name
+        self.mDefinition=definition
 
     @property
-    def simple_name(self):
-        pass
+    def name(self): return self.mName
+
+    @property
+    def definition(self): return self.definition
+
+    def __str__(self):
+        return "Constraint [mName=" + self.mName + ", mDefinition=" + \
+               self.mDefinition + "]"

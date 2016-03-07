@@ -87,3 +87,8 @@ class Application:
             print("Config Keys:")
             print(Application.__ALL__)
 
+    # def __str__(self):
+    #     _str = "Application: ["
+    #     for key, val in self.__dict__:
+    #         _str+=key + "=" + val
+    #     return _str +"]"

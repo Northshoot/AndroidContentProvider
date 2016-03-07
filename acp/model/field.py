@@ -22,15 +22,17 @@
 #
 # Created on 3/1/16.
 
-from . import Json
+from . import JsonRepresentation
 import acp.utils.tools as word_tools
-from . import Log
+from acp.utils.logger import logger as Log
+
+
 
 
 class Field:
         def __init__(self, model,  name, documentation,  isId,  isIndex,
                      isNullable,  isAutoIncrement, defaultValue,  enumName,
-                     enumValues, foreign_key=None):
+                     enumValues, foreign_key):
             self.mType = None #have to be overriden by children
             self._mJsonName = None #have to be overriden by children
             self.mSqlType = None #have to be overriden by children
@@ -66,16 +68,16 @@ class Field:
             return res
 
         def __str__(self):
-            return "Field [mName=" + self.mName + ", " \
-                   "mDocumentation=" + self.mDocumentation + \
-                   ", mType=" + self.mType + ", mIsId=" + self.mIsId + ", " \
-                   "mIsIndex=" + self.mIsIndex + \
-                   ", mIsNullable=" + self.mIsNullable + \
-                   ", mIsAutoIncrement=" + self.mIsAutoIncrement + \
-                   ", mDefaultValue=" + self.mDefaultValue + \
-                   ", mEnumName=" + self. mEnumName + \
+            return "Field [mName=" + str(self.mName) + ", " \
+                   "mDocumentation=" + str(self.mDocumentation) + \
+                   ", mType=" + str(self.mType) + ", mIsId=" + str(self.mIsId) + ", " \
+                   "mIsIndex=" + str(self.mIsIndex) + \
+                   ", mIsNullable=" + str(self.mIsNullable) + \
+                   ", mIsAutoIncrement=" + str(self.mIsAutoIncrement) + \
+                   ", mDefaultValue=" + str(self.mDefaultValue) + \
+                   ", mEnumName=" + str(self. mEnumName) + \
                    ", mEnumValues=" + str(self.mEnumValues) + \
-                   ", mForeignKey=" + self.mForeignKey + "]"
+                   ", mForeignKey=" + str(self.mForeignKey) + "]"
 
         @property
         def model(self): return self.mModel
@@ -123,6 +125,8 @@ class Field:
         @property
         def is_id(self): return self.mIsId
 
+        def set_is_id(self): self.mIsId = True
+
         @property
         def is_index(self): return self.mIsIndex
 
@@ -139,6 +143,9 @@ class Field:
 
         @property
         def sql_type(self): return self.mSqlType
+
+        @property
+        def is_nullable(self): return self.mIsNullable
 
         @property
         def has_not_nullable_java_type(self):
@@ -175,7 +182,7 @@ class BooleanField(Field):
     def __init__(self, *args, **kwargs):
         super(BooleanField, self).__init__(*args, **kwargs)
         self.mType = "BOOLEAN"
-        self._mJsonName = Json.TYPE_BOOLEAN
+        self._mJsonName = JsonRepresentation.TYPE_BOOLEAN
         self.mSqlType = "INTEGER"
         self._mNullableJavaType = "Boolean"
         self._mNotNullableJavaType = "boolean"
@@ -199,7 +206,7 @@ class IntegerField(Field):
 
     def __init__(self, *args, **kwargs):
         self.mType = "INTEGER"
-        self._mJsonName = Json.TYPE_INTEGER
+        self._mJsonName = JsonRepresentation.TYPE_INTEGER
         self.mSqlType = "INTEGER"
         self._mNullableJavaType = "Integer"
         self._mNotNullableJavaType = "int"
@@ -223,7 +230,7 @@ class LongField(Field):
 
     def __init__(self, *args, **kwargs):
         self.mType = "LONG"
-        self._mJsonName = Json.TYPE_LONG
+        self._mJsonName = JsonRepresentation.TYPE_LONG
         self.mSqlType = "INTEGER"
         self._mNullableJavaType = "Long"
         self._mNotNullableJavaType = "long"
@@ -247,7 +254,7 @@ class DateField(Field):
 
     def __init__(self, *args, **kwargs):
         self.mType = "DATE"
-        self._mJsonName = Json.TYPE_DATE
+        self._mJsonName = JsonRepresentation.TYPE_DATE
         self.mSqlType = "INTEGER"
         self._mNullableJavaType = "Date"
         self._mNotNullableJavaType = self._mNullableJavaType
@@ -265,7 +272,7 @@ class EnumField(Field):
 
     def __init__(self, *args, **kwargs):
         self.mType = "ENUM"
-        self._mJsonName = Json.TYPE_ENUM
+        self._mJsonName = JsonRepresentation.TYPE_ENUM
         self.mSqlType = "INTEGER"
         self._mNullableJavaType = "null"
         self._mNotNullableJavaType = "null"
@@ -294,7 +301,7 @@ class FloatField(Field):
 
     def __init__(self, *args, **kwargs):
         self.mType = "FLOAT"
-        self._mJsonName = Json.TYPE_FLOAT
+        self._mJsonName = JsonRepresentation.TYPE_FLOAT
         self.mSqlType = "REAL"
         self._mNullableJavaType = "Float"
         self._mNotNullableJavaType = "float"
@@ -318,7 +325,7 @@ class DoubleField(Field):
 
     def __init__(self, *args, **kwargs):
         self.mType = "DOUBLE"
-        self._mJsonName = Json.TYPE_DOUBLE
+        self._mJsonName = JsonRepresentation.TYPE_DOUBLE
         self.mSqlType = "REAL"
         self._mNullableJavaType = "Double"
         self._mNotNullableJavaType = "double"
@@ -342,7 +349,7 @@ class ByteArrayField(Field):
 
     def __init__(self, *args, **kwargs):
         self.mType = "BYTE_ARRAY"
-        self._mJsonName = Json.TYPE_BYTE_ARRAY
+        self._mJsonName = JsonRepresentation.TYPE_BYTE_ARRAY
         self.mSqlType = "BLOB"
         self._mNullableJavaType = "byte[]"
         self._mNotNullableJavaType = "byte[]"
@@ -366,7 +373,7 @@ class StringField(Field):
 
     def __init__(self, *args, **kwargs):
         self.mType = "STRING"
-        self._mJsonName = Json.TYPE_STRING
+        self._mJsonName = JsonRepresentation.TYPE_STRING
         self.mSqlType = "TEXT"
         self._mNullableJavaType = "String"
         self._mNotNullableJavaType = "String"
@@ -384,11 +391,13 @@ class StringField(Field):
                              self.mDefaultValue)
 
 
-class EnumValue:
+class EnumValue(Field):
     """
 
     """
     def __init__(self, name, documentation):
+        super(StringField, self).__init__(name, documentation)
+        Log.debug("Created: " + self.__str__())
         self.mName = name
         self.mDocumentation = documentation
 

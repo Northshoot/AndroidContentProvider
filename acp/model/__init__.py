@@ -23,98 +23,37 @@
 # Created on 2/29/16.
 
 
+from acp.utils.logger import logger as Log
+from .json_representation import JsonRepresentation
+from .constraint import Constraint
+from .delete_action import Action, sOnDeleteAction, OnDeleteAction
 from .foreignkey import ForeignKey
 from .field import *
-from .model import *
-import enum
-from acp.utils.logger import logger as Log
+
+__ALL__FIELDS__ = {
+    "String": StringField,
+    "Integer": IntegerField,
+    "Long": LongField,
+    "Float": FloatField,
+    "Double": DoubleField,
+    "Boolean": BooleanField,
+    "Date ": DateField,
+    "byte[]": ByteArrayField,
+    "enum": EnumField
+}
+
+from .model import DataModel, Models
 
 
-class Constraint:
-
-    class Json:
-        def __init__(self):
-            self.NAME = "name";
-            selfDEFINITION = "definition";
 
 
-    def __init__(self, name, definition):
-        self.mName = name
-        self.mDefinition=definition
-
-    @property
-    def name(self): return self.mName
-
-    @property
-    def definition(self): return self.definition
-
-    def __str__(self):
-        return "Constraint [mName=" + self.mName + ", mDefinition=" + \
-               self.mDefinition + "]"
-
-class Json:
-        NAME = "name"
-        TYPE = "type"
-        DOCUMENTATION = "documentation"
-        INDEX = "index"
-        NULLABLE = "nullable"
-        DEFAULT_VALUE = "defaultValue"
-        DEFAULT_VALUE_LEGACY = "default_value"
-        ENUM_NAME = "enumName"
-        ENUM_VALUES = "enumValues"
-        FOREIGN_KEY = "foreignKey"
-        FOREIGN_KEY_TABLE = "table"
-        FOREIGN_KEY_ON_DELETE_ACTION = "onDelete"
-
-        TYPE_STRING = "String"
-        TYPE_INTEGER = "Integer"
-        TYPE_LONG = "Long"
-        TYPE_FLOAT = "Float"
-        TYPE_DOUBLE = "Double"
-        TYPE_BOOLEAN = "Boolean"
-        TYPE_DATE = "Date"
-        TYPE_BYTE_ARRAY = "byte[]"
-        TYPE_ENUM = "enum"
-
-        ON_DELETE_ACTION_NO_ACTION = "NO ACTION"
-        ON_DELETE_ACTION_RESTRICT = "RESTRICT"
-        ON_DELETE_ACTION_SET_NULL = "SET NULL"
-        ON_DELETE_ACTION_SET_DEFAULT = "SET DEFAULT"
-        ON_DELETE_ACTION_CASCADE = "CASCADE"
-
-sOnDeleteAction = dict()
 
 
-class Action:
-    def __init__(self, json_name):
-        self.mJsonName = json_name
-        sOnDeleteAction[self.mJsonName] = self
-        Log.d("Created: " + self.__str__())
-
-    def __str__(self):
-        return "Action: " + "[JsonName: " + self.mJsonName + "]"
-
-    @property
-    def sql_name(self):
-        return sOnDeleteAction.get(self.mJsonName).replace('_', ' ')
-
-    def from_json_name(self, json_name):
-        try:
-            action = sOnDeleteAction.get(json_name)
-            return action
-        except KeyError:
-            raise KeyError("No such action: %s" %json_name)
 
 
-class OnDeleteAction(enum.Enum):
-    """
-    On delete action representation in android/sql
-    """
-    NO_ACTION = Action(Json.ON_DELETE_ACTION_NO_ACTION)
-    RESTRICT = Action(Json.ON_DELETE_ACTION_RESTRICT)
-    SET_NULL = Action(Json.ON_DELETE_ACTION_SET_NULL)
-    SET_DEFAULT = Action(Json.ON_DELETE_ACTION_SET_DEFAULT)
-    CASCADE = Action(Json.ON_DELETE_ACTION_CASCADE)
+
+
+
 
 
 

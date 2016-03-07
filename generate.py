@@ -28,6 +28,9 @@ import sys
 from acp.generator import Generator
 
 if __name__ == '__main__':
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__))))
+    from acp.model import JsonRepresentation as J
+    print(J)
     parser = argparse.ArgumentParser(description='Part of Ravel framework '
                                                  'that generates models and '
                                                  'DB fro Android.')
@@ -40,10 +43,11 @@ if __name__ == '__main__':
                         required=False)
     args = parser.parse_args()
     full_path = os.path.dirname(os.path.realpath(__file__))
+    print(full_path)
     if args.path == '.':
         args.path = full_path
-    if not args.output:
-        args.output = full_path + 'gen/'
-    else:
-        args.output = full_path + args.output
+
+    if args.output == '.':
+        args.output = args.path + '/gen/'
+
     Generator(args).go()

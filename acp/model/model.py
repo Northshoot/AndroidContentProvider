@@ -25,25 +25,31 @@
 import json
 import copy
 import acp.utils.tools as word_tools
-from . import Log
+from acp.utils.logger import logger as Log
 
 
-class Model:
+class Models:
 
     ALL_DATA_MODELS = []
+    HEADER = None
+
     def __init__(self):
         self.mHeader = None
         self.data_models = []
 
     @classmethod
-    def add_model(self, model):
+    def add_model(cls, model):
         if isinstance(model, DataModel):
-            self.data_models.append(model)
+            cls.ALL_DATA_MODELS.append(model)
         else:
             Log.error("Trying to add model that is not instance of DataModel "
                       "but: %s" % model.__class__.__name__)
             raise TypeError("Expected obj of type DataModel, got: %s"
                             % model.__class__.__name__)
+
+    @classmethod
+    def set_header(cls, header):
+        cls.HEADER = header
 
     def __str__(self):
         return self.ALL_DATA_MODELS.__str__()
@@ -88,18 +94,25 @@ class DataModel:
     PREFIX = ".PREFIX_"
     ALL_MODELS = dict()
 
-    def __init__(self, file_name=None, **kwargs):
+    def __init__(self, file_name=None,  **kwargs):
 
         self.mModel = None
         self._json_model = None
         self.mName = None
-        if file_name:
-            self._load_model_from_file(file_name)
-            self.mName = file_name
-        else:
+        try:
             self.mName = kwargs['name']
+        except KeyError:
+            Log.error("Model name is required")
+            raise KeyError("Model name is required")
+
+        self.mDocumentation = None
+        try:
+            self.mDocumentation = kwargs['documentation']
+        except KeyError:
+            pass
+
         self.mFields = []
-        self.mConstrains = []
+        self.mConstraints = []
         #add self to global list
         DataModel.ALL_MODELS[self.mName] = self
 
@@ -116,12 +129,6 @@ class DataModel:
     def add_model(cls, model):
         #TODO: check the right type
         cls.MODELS_LIST.append(model)
-
-    def _load_model_from_file(self, file):
-        with open(file, encoding='utf-8') as data_file:
-            self._json_model = json.loads(data_file.read())
-
-        Log.debug(self._json_model)
 
     def add_field(self, field, indx=None):
         if indx:
@@ -170,8 +177,8 @@ class DataModel:
                 return field
         return None
 
-    def add_constrain(self, constrain):
-        self.mConstrains.append(constrain)
+    def add_constraint(self, constrain):
+        self.mConstraints.append(constrain)
 
     @property
     def constrains(self): return self.mConstrains
@@ -200,3 +207,8 @@ class DataModel:
                 if f1.name_lower_case == f2.name_lower_case:
                     f1.mIsAmbiguous()
                     f2.mIsAmbiguous()
+
+    def __str__(self):
+        return "Entity [mName=" + self.mName + ", mFields=" + \
+        str(self.mFields) + ", mConstraints=" + str(self.mConstraints) + \
+        ", mDocumentation=" + self.mDocumentation + "]";

@@ -38,8 +38,7 @@ def get_file_names(path, extension='.json'):
     for f in fn:
         if f.endswith(extension, 4):
             l.append(f)
-    l= sorted(l)
-    print (l)
+    l = sorted(l)
     return l
 
 

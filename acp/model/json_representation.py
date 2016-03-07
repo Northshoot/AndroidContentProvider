@@ -20,29 +20,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Created on 2/29/16.
-
-from .model import DataModel
+# Created on 3/7/16.
 
 
-class ForeignKey:
-    """
+class JsonRepresentation:
+    NAME = "name"
+    TYPE = "type"
+    CONSTRAINTS = "constraints"
+    DOCUMENTATION = "documentation"
+    FIELDS = "fields"
+    ID_FIELD = "idField"
+    INDEX = "index"
+    NULLABLE = "nullable"
+    DEFAULT_VALUE = "defaultValue"
+    DEFAULT_VALUE_LEGACY = "default_value"
+    ENUM_NAME = "enumName"
+    ENUM_VALUES = "enumValues"
+    FOREIGN_KEY = "foreignKey"
+    FOREIGN_KEY_TABLE = "table"
+    FOREIGN_KEY_ON_DELETE_ACTION = "onDelete"
 
-    """
+    TYPE_STRING = "String"
+    TYPE_INTEGER = "Integer"
+    TYPE_LONG = "Long"
+    TYPE_FLOAT = "Float"
+    TYPE_DOUBLE = "Double"
+    TYPE_BOOLEAN = "Boolean"
+    TYPE_DATE = "Date"
+    TYPE_BYTE_ARRAY = "byte[]"
+    TYPE_ENUM = "enum"
 
-    def __init__(self, model_name, on_delete_action):
-        self.mModelName = model_name
-        self.mOnDeleteAction = on_delete_action
-
-    def __str__(self):
-        return "ForeignKey [mModelName=" + self.mModelName + ", " \
-                "mOnDeleteAction= " + self.mOnDeleteAction + "]"
-
-    @property
-    def model_name(self): return self.mModelName
-
-    @property
-    def model(self): return DataModel.get_by_name(self.mModelName)
-
-    @property
-    def on_delete_action(self): return self.mOnDeleteAction
+    ON_DELETE_ACTION_NO_ACTION = "NO ACTION"
+    ON_DELETE_ACTION_RESTRICT = "RESTRICT"
+    ON_DELETE_ACTION_SET_NULL = "SET NULL"
+    ON_DELETE_ACTION_SET_DEFAULT = "SET DEFAULT"
+    ON_DELETE_ACTION_CASCADE = "CASCADE"
