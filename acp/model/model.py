@@ -140,29 +140,37 @@ class DataModel:
     def get_fields(self):
         return copy.deepcopy(self.mFields)
 
+    @property
+    def fields_including_joins(self): return self.get_fields_including_joins()
+
     def get_fields_including_joins(self, isForeign=False, path="",
                                    forceNullable=False):
         ret = []
+
         for field in self.mFields:
-            if not field.getIsId() and not isForeign:
-                return
+            if not field.is_id and isForeign:
+                continue
 
             if isForeign:
                 ret.append(field.asForeignField(path, forceNullable))
             else:
                 ret.append(field)
 
-            foreignKey = field.getForeignKey()
+            foreignKey = field.foreign_key
             if foreignKey:
-                newPath = path + foreignKey.getEntity().getNameCamelCase()
+                newPath = path + foreignKey.model.name_camel_case
                 # If the field is nullable, all fields of the foreign (
                 # joined) entity must also be nullable
-                forceNullable = field.getIsNullable()
+                forceNullable = field.is_nullable
                 # Recurse
-                ret + foreignKey.getEntity()\
-                    .getFieldsIncludingJoins(True, newPath, forceNullable)
+                ret + foreignKey.model \
+                    .get_fields_including_joins(True, newPath, forceNullable)
 
+        print("LENGHT: " + str(len(ret)))
         return ret
+
+    @property
+    def joined_models(self): return self.get_joined_models()
 
     def get_joined_models(self):
         ret = []

@@ -32,15 +32,12 @@ public class {{data.model.name_camel_case}}Columns implements BaseColumns {
             {% if field.name_lower_case == "_id"  %}
     public static final String _ID = BaseColumns._ID;
             {% else %}
-    public static final String _ID = "{{field
-                .name_or_prefix}}";
+    public static final String _ID = "{{field.name_or_prefix}}";
 
-    public static final String {{ field.name_upper_case }} = "{{field
-                .name_or_prefix}}";
+    public static final String {{ field.name_upper_case }} = "{{field.name_or_prefix}}";
             {% endif %}
         {% else %}
-    public static final String {{field.name_upper_case}} = "{{field
-                .name_or_prefix}}";
+    public static final String {{field.name_upper_case}} = "{{field.name_or_prefix}}";
         {% endif %}
 
     {% endfor %}

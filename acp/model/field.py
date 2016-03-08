@@ -33,11 +33,6 @@ class Field:
         def __init__(self, model,  name, documentation,  isId,  isIndex,
                      isNullable,  isAutoIncrement, defaultValue,  enumName,
                      enumValues, foreign_key):
-            self.mType = None #have to be overriden by children
-            self._mJsonName = None #have to be overriden by children
-            self.mSqlType = None #have to be overriden by children
-            self._mNullableJavaType = None #have to be overriden by children
-            self._mNotNullableJavaType = None #have to be overriden by children
             self.mEnumValues = []
             self.mModel = model
             self.mName = name
@@ -119,7 +114,7 @@ class Field:
                 return self.mName
 
         @property
-        def type(self): return self.type
+        def type(self): return self.mType
 
         @property
         def is_ambiguous(self): return self.mIsAmbiguous
@@ -174,6 +169,10 @@ class Field:
 
         def set_is_ambiguous(self, val=True):
             self.mIsAmbiguous = val
+
+        @property
+        def function_cursor_get_or_null(self):
+            return "get"+self._mNullableJavaType + "OrNull"
 
 
 class BooleanField(Field):
@@ -295,6 +294,7 @@ class EnumField(Field):
 
     @property
     def simple_java_name(self): return "null"
+
 
 class FloatField(Field):
     """

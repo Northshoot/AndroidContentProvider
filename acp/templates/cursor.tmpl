@@ -1,102 +1,81 @@
-{% extends "base.tmpl" %}
+{% extends "base_model.tmpl" %}
 
+{% block main %}
 import java.util.Date;
 
 import android.database.Cursor;
-{% if config.useAnnotations %}
+{% if data.config.useAnnotations %}
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 {% endif %}
 
-import {{config.providerJavaPackage}.base.AbstractCursor;
-{% for entity.joinedEntities as joinedEntity>
-import {{config.providerJavaPackage}.{{joinedEntity.packageName}.*;
+import {{data.config.providerJavaPackage}}.base.AbstractCursor;
+{% for joined_model in data.model.joined_models %}
+import {{data.config.providerJavaPackage}}.{{joined_model.package_name}}.*;
 {% endfor %}
 
 /**
- * Cursor wrapper for the {@code {{entity.nameLowerCase}} table.
+ * Cursor wrapper for the {@code {{data.model.name_lower_case}} table.
  */
-public class {{entity.nameCamelCase}Cursor extends AbstractCursor implements {{entity.nameCamelCase}Model {
-    public {{entity.nameCamelCase}Cursor(Cursor cursor) {
+public class {{data.model.name_camel_case}}Cursor extends AbstractCursor
+implements
+{{data.model.name_camel_case}}Model {
+    public {{data.model.name_camel_case}}Cursor(Cursor cursor) {
         super(cursor);
     }
-{% for entity.getFieldsIncludingJoins() as field>
-    <#if field.isId && field.nameLowerCase != '_id'>
-
+{% for field in data.model.fields_including_joins %}
+    {% if field.is_id and field.name_lower_case != '_id' %}
     @Override
     public long getId() {
-        return getLongOrNull({{field.entity.nameCamelCase}Columns._ID);
+        return getLongOrNull({{field.model.name_camel_case}}Columns._ID);
     }
     {% endif %}
 
     /**
-    <#if field.documentation??>
-     * {{field.documentation}
-    <#else>
-     * Get the {@code {{field.nameLowerCase}} value.
+    {% if field.documentation  %}
+     * {{field.documentation}}
+    {%  else %}
+     * Get the {@code {{field.name_lower_case}} value.
     {% endif %}
-        <#if field.isNullable>
+    {% if field.is_nullable  %}
      * Can be {@code null}.
-        <#else>
-            <#if !field.type.hasNotNullableJavaType()>
+     {% elif not field.type.has_not_nullable_java_type %}
      * Cannot be {@code null}.
-            {% endif %}
-        {% endif %}
+     {% endif %}
+
      */
-    {% if config.useAnnotations %}
-        <#if field.isNullable>
+    {% if data.config.useAnnotations %}
+        {% if field.is_nullable  %}
     @Nullable
-        <#else>
-            <#if !field.type.hasNotNullableJavaType()>
+        {% elif not field.type.has_not_nullable_java_type %}
     @NonNull
-            {% endif %}
         {% endif %}
     {% endif %}
-    public {{field.javaTypeSimpleName} get<#if field.isForeign>{{field.path}{% endif %}{{field.nameCamelCase}() {
-    <#switch field.type.name()>
-        <#case "STRING">
-        String res = getStringOrNull({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase});
-        <#break>
-        <#case "INTEGER">
-        Integer res = getIntegerOrNull({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase});
-        <#break>
-        <#case "LONG">
-        Long res = getLongOrNull({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase});
-        <#break>
-        <#case "FLOAT">
-        Float res = getFloatOrNull({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase});
-        <#break>
-        <#case "DOUBLE">
-        Double res = getDoubleOrNull({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase});
-        <#break>
-        <#case "BOOLEAN">
-        Boolean res = getBooleanOrNull({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase});
-        <#break>
-        <#case "DATE">
-        Date res = getDateOrNull({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase});
-        <#break>
-        <#case "BYTE_ARRAY">
-        byte[] res = getBlobOrNull({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase});
-        <#break>
-        <#case "ENUM">
-        Integer intValue = getIntegerOrNull({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase});
-            <#if field.isNullable>
-        if (intValue == null) return null;
-            <#else>
-        if (intValue == null)
-            throw new NullPointerException("The value of '{{field.nameLowerCase}' in the database was null, which is not allowed according to the model definition");
-            {% endif %}
-        return {{field.javaTypeSimpleName}.values()[intValue];
-        <#break>
-    </#switch>
-    <#if field.type.name() != "ENUM">
-        <#if !field.isNullable>
+
+    public {{field.simple_java_name}} get{% if field.is_foreign_key  %}{{field.path}}{% endif %}{{field.name_camel_case}}() {
+        {%  if field.mType != "ENUM"%}
+        String res = {{ field.function_cursor_get_or_null }}({{field.model
+        .name_camel_case}}Columns.{{field.name_upper_case}});
+        {%  if not field.is_nullable  %}
         if (res == null)
-            throw new NullPointerException("The value of '{{field.nameLowerCase}' in the database was null, which is not allowed according to the model definition");
+            throw new NullPointerException("The value of '{{field.name_lower_case}}' in the database was null, which is not allowed according to the model definition");
         {% endif %}
         return res;
-    {% endif %}
+
+         {% else %}
+        Integer intValue = getIntegerOrNull({{field.model
+        .name_camel_case}}Columns.${field.name_upper_case}});
+            {%  if not field.is_nullable  %}
+        if (intValue == null) return null;
+            {% else %}
+        if (intValue == null)
+            throw new NullPointerException("The value of '${field.nameLowerCase}' in the database was null, which is not allowed according to the model definition");
+        {%  endif %}
+        return {{field.simple_java_name}}.values()[intValue];
+
+        {% endif %}
+
     }
 {% endfor %}
 }
-Status API Training Shop Blog About Pricing
+{% endblock %}

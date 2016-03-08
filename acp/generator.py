@@ -245,7 +245,17 @@ class Generator:
         #models
         for model in self.models:
             # Cursor wrapper
+            model_name = model.name_camel_case
+            tmpl_data['model'] = model
+            out_dir = self.app.provider_dir + model.package_name + "/"
+            template = FileObject(build_path=out_dir,
+                                  file_name=model_name+"Cursor.java",
+                                  tmpl_path=self.tmpl_path,
+                                  tmpl_name='cursor.tmpl',
+                                  tmpl_data=tmpl_data
+                                  )
 
+            template.render_file()
             # ContentValues wrapper
 
             # Selection builder
