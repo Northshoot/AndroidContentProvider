@@ -1,4 +1,5 @@
 {% extends "base.tmpl" %}
+{%  block main %}
 import java.util.Arrays;
 
 import android.content.ContentValues;
@@ -6,20 +7,20 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
-{% if config.useAnnotations %}
+{% if data.config.useAnnotations %}
 import android.support.annotation.NonNull;
 {% endif %}
 import android.util.Log;
 
-import {{ config.projectPackageId }}.BuildConfig;
-import {{ config.providerJavaPackage }}.base.BaseContentProvider;
-{% for entity in   model.entities %}
-import {{ config.providerJavaPackage }}.{{ entity.packageName }}.{{ entity
-.nameCamelCase }}.Columns;
+import {{ data.config.PROJECT_PACKAGE_ID }}.BuildConfig;
+import {{ data.config.PROVIDER_JAVA_PACKAGE }}.base.BaseContentProvider;
+{% for entity in   models %}
+import {{ data.config.providerJavaPackage }}.{{ entity.packageName }}.{{ entity
+.name_camel_case }}.Columns;
 {% endfor %}
 
-public class {{ config.providerClassName }} extends BaseContentProvider {
-    private static final String TAG = {{ config.providerClassName }}.class
+public class {{ data.config.PROVIDER_CLASS_NAME }} extends BaseContentProvider {
+    private static final String TAG = {{ data.config.PROVIDER_CLASS_NAME }}.class
         .getSimpleName();
 
     private static final boolean DEBUG = BuildConfig.DEBUG;
@@ -28,14 +29,14 @@ public class {{ config.providerClassName }} extends BaseContentProvider {
     private static final String TYPE_CURSOR_DIR = "vnd.android.cursor.dir/";
 
 
-    public static final String AUTHORITY = {{ config.authority }};
+    public static final String AUTHORITY = {{ data.config.AUTHORITY }};
     public static final String CONTENT_URI_BASE = "content://" + AUTHORITY;
 
     {% set counter = 0 -%}
-    {% for  entity in model.entities %}
-    private static final int URI_TYPE_{{ entity.nameUpperCase }} = {{ counter
+    {% for  entity in models %}
+    private static final int URI_TYPE_{{ entity.name_upper_case }} = {{ counter
      + loop.index0 }};
-    private static final int URI_TYPE_{{ entity.nameUpperCase }}_ID = {{
+    private static final int URI_TYPE_{{ entity.name_upper_case }}_ID = {{
             counter + loop.index0 + 1 }};
 
     {% endfor %}
@@ -44,17 +45,18 @@ public class {{ config.providerClassName }} extends BaseContentProvider {
     private static final UriMatcher URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
-        {% for entity in model.entities %}
-        URI_MATCHER.addURI(AUTHORITY, {{ entity.nameCamelCase }}.Columns
-            .TABLE_NAME, URI_TYPE_{{ entity.nameUpperCase }});
-        URI_MATCHER.addURI(AUTHORITY, {{ entity.nameCamelCase }}Columns
-            .TABLE_NAME + "/#", URI_TYPE_{{ entity.nameUpperCase  }}_ID);
+        {% for entity in models %}
+        URI_MATCHER.addURI(AUTHORITY, {{ entity.name_camel_case }}.Columns
+            .TABLE_NAME, URI_TYPE_{{ entity.name_upper_case }});
+        URI_MATCHER.addURI(AUTHORITY, {{ entity.name_upper_case }}Columns
+            .TABLE_NAME + "/#", URI_TYPE_{{ entity.name_upper_case  }}_ID);
         {% endfor %}
     }
 
     @Override
     protected SQLiteOpenHelper createSqLiteOpenHelper() {
-        return {{ config.sqliteOpenHelperClassName }}.getInstance(getContext());
+        return {{ data.config.SQLITE_OPEN_HELPER_CLASS_NAME }}.getInstance
+(getContext());
     }
 
     @Override
@@ -66,12 +68,12 @@ public class {{ config.providerClassName }} extends BaseContentProvider {
     public String getType(Uri uri) {
         int match = URI_MATCHER.match(uri);
         switch (match) {
-            {% for  entity in model.entities %}
-            case URI_TYPE_{{ entity.nameUpperCase }}:
-                return TYPE_CURSOR_DIR + {{ entity.nameCamelCase }}Columns
+            {% for  entity in models %}
+            case URI_TYPE_{{ entity.name_upper_case }}:
+                return TYPE_CURSOR_DIR + {{ entity.name_camel_case }}Columns
                 .TABLE_NAME;
-            case URI_TYPE_{{ entity.nameUpperCase  }}_ID:
-                return TYPE_CURSOR_ITEM + {{ entity.nameCamelCase }}Columns
+            case URI_TYPE_{{ entity.name_upper_case  }}_ID:
+                return TYPE_CURSOR_ITEM + {{ entity.name_camel_case }}Columns
                 .TABLE_NAME;
             {% endfor %}
         }
@@ -116,13 +118,13 @@ public class {{ config.providerClassName }} extends BaseContentProvider {
         String id = null;
         int matchedId = URI_MATCHER.match(uri);
         switch (matchedId) {
-            {% for entity in model.entities %}
-            case URI_TYPE_${entity.nameUpperCase }}:
-            case URI_TYPE_${entity.nameUpperCase }}_ID:
-                res.table = {{ entity.nameCamelCase  }}Columns.TABLE_NAME;
-                res.idColumn = {{ entity.nameCamelCase }}Columns._ID;
-                res.tablesWithJoins = {{ entity.allJoinedTableNames }}
-                res.orderBy = {{ entity.nameCamelCase }}Columns.DEFAULT_ORDER;
+            {% for entity in models %}
+            case URI_TYPE_${entity.name_upper_case }}:
+            case URI_TYPE_${entity.name_upper_case }}_ID:
+                res.table = {{ entity.name_camel_case  }}Columns.TABLE_NAME;
+                res.idColumn = {{ entity.name_camel_case }}Columns._ID;
+                res.tablesWithJoins = {{ entity.all_joined_table_names }}
+                res.orderBy = {{ entity.name_camel_case }}Columns.DEFAULT_ORDER;
                 break;
             {% endfor %}
             default:
@@ -130,8 +132,8 @@ public class {{ config.providerClassName }} extends BaseContentProvider {
         }
 
         switch (matchedId) {
-            {% for entity in model.entities %}
-            case URI_TYPE_{{ entity.nameUpperCase }}_ID:
+            {% for entity in models %}
+            case URI_TYPE_{{ entity.name_upper_case }}_ID:
             {% endfor %}
                 id = uri.getLastPathSegment();
         }
@@ -147,3 +149,4 @@ public class {{ config.providerClassName }} extends BaseContentProvider {
         return res;
     }
 }
+{% endblock %}

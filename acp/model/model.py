@@ -217,6 +217,12 @@ class DataModel:
                     f1.mIsAmbiguous()
                     f2.mIsAmbiguous()
 
+    def all_joined_table_names(self):
+        pass
+
+    def add_all_joined_clauses(self):
+        pass
+
     def __str__(self):
         return "Entity [mName=" + self.mName + ", mFields=" + \
         str(self.mFields) + ", mConstraints=" + str(self.mConstraints) + \
