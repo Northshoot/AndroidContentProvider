@@ -1,0 +1,163 @@
+{% extends "base.tmpl" %}
+{%  block main %}
+
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.database.DatabaseErrorHandler;
+import android.database.DefaultDatabaseErrorHandler;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Build;
+import android.util.Log;
+
+import {{data.config.PROJECT_PACKAGE_ID}}.BuildConfig;
+{% for entity in data.models %}
+import {{data.config.PROVIDER_JAVA_PACKAGE}}.{{entity.package_name}}.{{entity
+.name_camel_case}}Columns;
+{% endfor %}
+
+public class {{data.config.sQLITE_OPEN_HELPER_CLASS_NAME}} extends SQLiteOpenHelper {
+    private static final String TAG = {{data.config.SQLITE_OPEN_HELPER_CLASS_NAME}}.class.getSimpleName();
+
+    public static final String DATABASE_FILE_NAME = "{{data.config
+    .databaseFileName}}";
+    private static final int DATABASE_VERSION = {{data.config
+    .DATABASE_VERSION}};
+    private static {{data.config.sQLITE_OPEN_HELPER_CLASS_NAME}} sInstance;
+    private final Context mContext;
+    private final {{data.config.sQLITE_OPEN_HELPER_CALLBACKS_CLASS_NAME}} mOpenHelperCallbacks;
+
+    // @formatter:off
+    {% for entity in data.models %}
+    public static final String SQL_CREATE_TABLE_{{entity.name_upper_case}} = "CREATE TABLE IF NOT EXISTS "
+            + {{entity.name_camel_case}}Columns.TABLE_NAME + " ( "
+            {% for  field in entity.fields %}
+                {% if field.is_id %}
+            + {{entity.name_camel_case}}Columns._ID + " INTEGER PRIMARY KEY{%
+                        if field.is_auto_increment %} AUTOINCREMENT{% endif %}, "
+                {% else %}
+            + {{entity.name_camel_case}}Columns.{{field.name_upper_case}} + " {{field.sql_type}}{% if not field.is_nullable %} NOT NULL{% endif %}{% if field.has_default %} DEFAULT {{field.default_value}}{% endif %}{% if field_has_next %},{% endif %} "
+                {% endif %}
+            {% endfor %}
+            {% if data.config.ENABLE_FOREIGN_KEY %}
+                {% for  field in entity.fields %}
+                    {% if field.is_foreign_key %}
+            + ", CONSTRAINT fk_{{field.name_lower_case}} FOREIGN KEY (" +
+                        {{entity.name_camel_case}}Columns.{{field.name_upper_case}} + ") REFERENCES {{field.foreignKey.entity.name_lower_case}} ({{field.foreignKey.field.name_lower_case}}) ON DELETE {{field.foreignKey.on_delete_action.sql_name}}"
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            {% for constraint in entity.constraints %}
+            + ", CONSTRAINT {{constraint.name}} {{constraint.definition}}"
+            {% endfor %}
+            + " );";
+
+    {% for field in entity.fields %}
+    {% if field.is_index %}
+    public static final String SQL_CREATE_INDEX_{{entity.name_upper_case}}_{{field.name_upper_case}} = "CREATE INDEX IDX_{{entity.name_upper_case}}_{{field.name_upper_case}} "
+            + " ON " + {{entity.name_camel_case}}Columns.TABLE_NAME + " ( " + {{entity.name_camel_case}}Columns.{{field.name_upper_case}} + " );";
+
+    {% endif %}
+    {% endfor %}
+    {% endfor %}
+    // @formatter:on
+
+    public static {{data.config.sQLITE_OPEN_HELPER_CLASS_NAME}} getInstance(Context context) {
+        // Use the application context, which will ensure that you
+        // don't accidentally leak an Activity's context.
+        // See this article for more information: http://bit.ly/6LRzfx
+        if (sInstance == null) {
+            sInstance = newInstance(context.getApplicationContext());
+        }
+        return sInstance;
+    }
+
+    private static {{data.config.sQLITE_OPEN_HELPER_CLASS_NAME}} newInstance(Context context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            return newInstancePreHoneycomb(context);
+        }
+        return newInstancePostHoneycomb(context);
+    }
+
+
+    /*
+     * Pre Honeycomb.
+     */
+    private static {{data.config.sQLITE_OPEN_HELPER_CLASS_NAME}} newInstancePreHoneycomb(Context context) {
+        return new {{data.config.sQLITE_OPEN_HELPER_CLASS_NAME}}(context);
+    }
+
+    private {{data.config.sQLITE_OPEN_HELPER_CLASS_NAME}}(Context context) {
+        super(context, DATABASE_FILE_NAME, null, DATABASE_VERSION);
+        mContext = context;
+        mOpenHelperCallbacks = new {{data.config.sQLITE_OPEN_HELPER_CALLBACKS_CLASS_NAME}}();
+    }
+
+
+    /*
+     * Post Honeycomb.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private static {{data.config.sQLITE_OPEN_HELPER_CLASS_NAME}} newInstancePostHoneycomb(Context context) {
+        return new {{data.config.sQLITE_OPEN_HELPER_CLASS_NAME}}(context, new DefaultDatabaseErrorHandler());
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private {{data.config.sQLITE_OPEN_HELPER_CLASS_NAME}}(Context context, DatabaseErrorHandler errorHandler) {
+        super(context, DATABASE_FILE_NAME, null, DATABASE_VERSION, errorHandler);
+        mContext = context;
+        mOpenHelperCallbacks = new {{data.config.sQLITE_OPEN_HELPER_CALLBACKS_CLASS_NAME}}();
+    }
+
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        if (BuildConfig.DEBUG) Log.d(TAG, "onCreate");
+        mOpenHelperCallbacks.onPreCreate(mContext, db);
+        {% for entity in data.models %}
+        db.execSQL(SQL_CREATE_TABLE_{{entity.name_upper_case}});
+            {% for field in entity.fields %}
+                {% if field.is_index %}
+        db.execSQL(SQL_CREATE_INDEX_{{entity.name_upper_case}}_{{field.name_upper_case}});
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+        mOpenHelperCallbacks.onPostCreate(mContext, db);
+    }
+
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+        {% if data.config.ENABLE_FOREIGN_KEY %}
+        if (!db.isReadOnly()) {
+            setForeignKeyConstraintsEnabled(db);
+        }
+        {% endif %}
+        mOpenHelperCallbacks.onOpen(mContext, db);
+    }
+
+        {% if data.config.ENABLE_FOREIGN_KEY %}
+    private void setForeignKeyConstraintsEnabled(SQLiteDatabase db) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            setForeignKeyConstraintsEnabledPreJellyBean(db);
+        } else {
+            setForeignKeyConstraintsEnabledPostJellyBean(db);
+        }
+    }
+
+    private void setForeignKeyConstraintsEnabledPreJellyBean(SQLiteDatabase db) {
+        db.execSQL("PRAGMA foreign_keys=ON;");
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void setForeignKeyConstraintsEnabledPostJellyBean(SQLiteDatabase db) {
+        db.setForeignKeyConstraintsEnabled(true);
+    }
+
+        {% endif %}
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        mOpenHelperCallbacks.onUpgrade(mContext, db, oldVersion, newVersion);
+    }
+}
+{% endblock %}

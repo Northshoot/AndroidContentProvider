@@ -302,7 +302,18 @@ class Generator:
         template.render_file()
 
     def make_sqlite_open_helper(self):
-        pass
+        tmpl_data = dict()
+        tmpl_data['config'] = self.app
+        tmpl_data['models'] = Models.ALL_DATA_MODELS
+        template = FileObject(build_path=self.app.provider_dir +
+                                         self.app.PROVIDER_CLASS_NAME.replace(
+                                             '.', '/'),
+                              file_name=self.app.SQLITE_OPEN_HELPER_CLASS_NAME + ".java",
+                              tmpl_path=self.tmpl_path,
+                              tmpl_name='sqliteopenhelper.tmpl',
+                              tmpl_data=tmpl_data
+                              )
+        template.render_file()
 
     def make_generate_sqlite_open_helper_callbacks(self):
         pass
