@@ -21,15 +21,14 @@
 # limitations under the License.
 #
 # Created on 2/29/16.
-
+import json
+import os
 from .utils.tools import get_file_names
 from .app import Application
-from .model.model import DataModel
 from .utils.logger import logger as Log
 from .model import JsonRepresentation as Json, Models, DataModel
 from .model import Action, ForeignKey, __ALL__FIELDS__, Constraint
-import json
-
+from .builder.base import FileObject
 
 class Generator:
     def __init__(self, args):
@@ -39,9 +38,12 @@ class Generator:
         self.models_file_names = self._files[1:] #the rest are models
         Log.debug("Model to load: " + str(self._files))
         self.app = Application(args.path, args.output, self.config_file_name)
+        self.tmpl_path = os.path.dirname(os.path.realpath(__file__)) + \
+                         "/templates/"
+        self.output_dir = self.args.output
         self.models = []
-        # for mf in self.models_file_names:
-        #     self.models.append(DataModel(file_name=mf))
+        self.config = dict()
+        self.config['header'] = Application.__DEF__HEADER__
 
 
     def load_models(self):
@@ -117,14 +119,13 @@ class Generator:
                 if len(id_fields) != 1:
                     raise ValueError("Invalid number of idField ")
                 id_field_name = id_fields[0]
-
             if "_id" == id_field_name:
                 name = id_field_name
                 id_field_obj = __ALL__FIELDS__.get("Long")(
                               model, name, "Primary key.",  True, False,
                               False, True, None, None, None, None
                 )
-                model.add_field(id_field_obj, 0)
+                model.add_id_field(id_field_obj)
             else:
                 id_field_obj = model.get_field_by_name(id_field_name)
                 if not id_field_obj:
@@ -137,7 +138,6 @@ class Generator:
                 if not id_field_obj.is_index:
                     raise ValueError("ID Field %s must be index" %id_field_name)
                 id_field_obj.set_is_id()
-
             # Constraints
             constraints_json = json_model.get(Json.CONSTRAINTS)
             if constraints_json:
@@ -156,21 +156,91 @@ class Generator:
         pass
 
     def make_table_columns(self):
-        pass
+        tmpl_data = dict()
+        tmpl_data['config'] = self.app
+        tmpl_data['all_models'] = Models.get_models()
+        for model in Models.get_models():
+            tmpl_data['model']=model
+            template = FileObject(build_path=self.app.provider_dir +
+                                             model.name_lower_case +"/",
+                                  file_name=model.name_camel_case + "Columns.java",
+                                  tmpl_path=self.tmpl_path,
+                                  tmpl_name='columns.tmpl',
+                                  tmpl_data=tmpl_data
+                                  )
+            template.render_file()
 
     def make_models(self):
-        pass
+        tmpl_data = dict()
+        tmpl_data['config'] = self.app
+        tmpl_data['all_models'] = Models.get_models()
+        for model in Models.get_models():
+            tmpl_data['model']=model
+            template = FileObject(build_path=self.app.provider_dir +
+                                             model.name_lower_case +"/",
+                                  file_name=model.name_camel_case +
+                                            "Model.java",
+                                  tmpl_path=self.tmpl_path,
+                                  tmpl_name='model.tmpl',
+                                  tmpl_data=tmpl_data
+                                  )
+            template.render_file()
 
     def make_wrappers(self):
+        tmpl_data = dict()
+        tmpl_data['config'] = self.app
+        tmpl_data['all_models'] = Models.get_models()
+        out_dir = self.app.provider_dir + "base/"
         #AbstractCursor
+        template = FileObject(build_path=out_dir,
+                              file_name="AbstractCursor.java",
+                              tmpl_path=self.tmpl_path,
+                              tmpl_name='abstractcursor.tmpl',
+                              tmpl_data=tmpl_data
+                              )
+
+        template.render_file()
 
         #AbstractContentValuesWrapper
+        template = FileObject(build_path=out_dir,
+                              file_name="AbstractContentValues.java",
+                              tmpl_path=self.tmpl_path,
+                              tmpl_name='abstractcontentvalues.tmpl',
+                              tmpl_data=tmpl_data
+                              )
+
+        template.render_file()
 
         #AbstractSelection
+        template = FileObject(build_path=out_dir,
+                              file_name="AbstractSelection.java",
+                              tmpl_path=self.tmpl_path,
+                              tmpl_name='abstractselection.tmpl',
+                              tmpl_data=tmpl_data
+                              )
+
+        template.render_file()
 
         #BaseContentProvider
+        template = FileObject(build_path=out_dir,
+                              file_name="BaseContentProvider.java",
+                              tmpl_path=self.tmpl_path,
+                              tmpl_name='basecontentprovider.tmpl',
+                              tmpl_data=tmpl_data
+                              )
+
+        template.render_file()
 
         #BaseModel
+        template = FileObject(build_path=out_dir,
+                          file_name="BaseModel.java",
+                          tmpl_path=self.tmpl_path,
+                          tmpl_name='abstractmodel.tmpl',
+                          tmpl_data=tmpl_data
+                          )
+
+
+        template.render_file()
 
         #models
         for model in self.models:

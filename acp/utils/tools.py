@@ -23,6 +23,7 @@
 # Created on 2/29/16.
 
 import os
+import sys
 import os.path
 
 
@@ -67,14 +68,14 @@ def lower_case_underscore_to_camel_case(string):
     splitted_string = string.split('_')
     # use string's class to work on the string to keep its type
     class_ = string.__class__
-    return splitted_string[0] + class_.join('', map(class_.capitalize, splitted_string[1:]))
+    return class_.join('', map(class_.capitalize, splitted_string))
 
 
 def detect_conversion_method(data):
     if '_' in data:
-        return lower_case_underscore_to_camel_case
+        return lower_case_underscore_to_camel_case(data)
     else:
-        return camel_case_to_lower_case_underscore
+        return camel_case_to_lower_case_underscore(data)
 
 
 def write_to_file(file_name, data):
@@ -88,3 +89,6 @@ def write_to_file(file_name, data):
     except:
         print("Unexpected error:", sys.exc_info()[0])
         raise
+
+if __name__ == '__main__':
+    print(lower_case_underscore_to_camel_case("ledmodel"))

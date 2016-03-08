@@ -21,9 +21,9 @@
 # limitations under the License.
 #
 # Created on 2/18/16.
-
-import ast
 import json
+from .utils.logger import logger as Log
+
 
 class Application:
     """
@@ -38,23 +38,41 @@ class Application:
              "enableForeignKeys\n" \
              "useAnnotations\n" \
 
+    __DEF__HEADER__ = \
+"""
+/*
+ * Copyright (C) 2016 Laurynas Riliskis
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+    """
+
     def __init__(self, path, output_path, config):
         self.path = path
         self.output_path = output_path
-        self.config = []
-        print(config)
+        self.header = Application.__DEF__HEADER__
         with open(config, encoding='utf-8') as data_file:
             self.config = json.loads(data_file.read())
 
-        print(self.config)
         try:
             self.PROJECT_PACKAGE_ID = self.config["appPackageName"]
             self.PROVIDER_JAVA_PACKAGE = self.PROJECT_PACKAGE_ID + \
                                              "provider"
 
             try:
-                self.PROVIDER_CLASS_NAME = self.config[
-                                             "appPackageName"]+"provider"
+                self.PROVIDER_CLASS_NAME = self.config["providerClassName"]
             except KeyError:
                 self.PROVIDER_CLASS_NAME = "RavelProvider"
             try:
@@ -83,9 +101,15 @@ class Application:
             self.ENABLE_FOREIGN_KEY = "enableForeignKeys"
             self.USE_ANNOTATIONS = "useAnnotations"
         except KeyError as e:
-            print("No such configuration key: " + str(e))
-            print("Config Keys:")
-            print(Application.__ALL__)
+            Log.debug("No such configuration key: " + str(e))
+            Log.debug("Config Keys:")
+            Log.debug(Application.__ALL__)
+
+        self.provider_dir = self.output_path + \
+                            self.PROVIDER_JAVA_PACKAGE.replace('.','/') + "/"
+
+    def set_header(self, header):
+        self.header = header
 
     # def __str__(self):
     #     _str = "Application: ["

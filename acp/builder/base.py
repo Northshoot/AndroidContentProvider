@@ -26,7 +26,7 @@
 from jinja2 import FileSystemLoader, Environment
 from ..utils.logger import logger as Log
 from ..utils.tools import write_to_file
-
+from jinja2.exceptions import TemplateNotFound
 
 class TemplateWriter:
     def __init__(self, **kwargs):
@@ -34,7 +34,7 @@ class TemplateWriter:
             for key in ('build_path', 'file_name',  'tmpl_data'):
                 setattr(self, key, kwargs[key])
         except KeyError:
-            raise KeyError("Missing argument in StringObject %s"
+            raise KeyError("Missing argument in template object %s"
                                          %key)
 
     @property
@@ -43,13 +43,15 @@ class TemplateWriter:
         OBS! all templates must use data dict!
         :return: rendered sring
         """
-        return self.tmpl.render(data=self.tmpl_data)
+        try:
+            return self.tmpl.render(data=self.tmpl_data)
+        except TemplateNotFound:
+            raise TemplateNotFound("Ca't find template: %s" %self.tmpl_name)
 
     def render_file(self):
-        Log.debbug(">>Rendering to file %s in path %s." %(self.file_name,
+        Log.debug(">>Rendering to file %s in path %s." %(self.file_name,
                                                   self.build_path))
         write_to_file(self.build_path+'/' + self.file_name, self.render_string)
-
 
 
 class FileObject(TemplateWriter):

@@ -79,6 +79,8 @@ class Field:
                    ", mEnumValues=" + str(self.mEnumValues) + \
                    ", mForeignKey=" + str(self.mForeignKey) + "]"
 
+
+
         @property
         def model(self): return self.mModel
 
@@ -93,7 +95,7 @@ class Field:
 
         @property
         def name_camel_case(self):
-            return word_tools.detect_conversion_method(self.mName)
+            return word_tools.lower_case_underscore_to_camel_case(self.mName)
 
         @property
         def name_camel_lower_case(self):

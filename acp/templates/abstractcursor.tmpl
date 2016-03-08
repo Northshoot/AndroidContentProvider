@@ -1,5 +1,5 @@
-{% extends "layout.html" %}
-
+{% extends "base_base.tmpl" %}
+{% block main %}
 import java.util.Date;
 import java.util.HashMap;
 
@@ -74,3 +74,5 @@ public abstract class AbstractCursor extends CursorWrapper {
         return getBlob(index);
     }
 }
+
+{% endblock %}

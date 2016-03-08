@@ -1,0 +1,82 @@
+{% extends "base_model.tmpl" %}
+
+{% block main %}
+
+import {{ data.config.providerJavaPackage }}.{{data.config
+.PROVIDER_CLASS_NAME}};
+{%  for model in data.all_models %}
+import {{data.config.PROVIDER_JAVA_PACKAGE}}.{{model.package_name}}.{{model
+.name_camel_case}}Columns;
+{% endfor %}
+
+/**
+{% if data.model.documentation %}
+ * {{ data.model.documentation }}
+{% else %}
+ * Columns for the {@code {{data.model.name_lower_case}} table.
+{% endif %}
+ */
+
+
+public class {{data.model.name_camel_case}}Columns implements BaseColumns {
+    public static final String TABLE_NAME = "{{data.model.name_lower_case}}";
+    public static final Uri CONTENT_URI = Uri.parse({{data.config.PROVIDER_CLASS_NAME}}.CONTENT_URI_BASE + "/" + TABLE_NAME);
+
+   {%  for field in data.model.fields %}
+        {% if field.documentation  %}
+    /**
+     * {{field.documentation}}
+     */
+        {% endif %}
+        {% if  field.is_id %}
+            {% if field.name_lower_case == "_id"  %}
+    public static final String _ID = BaseColumns._ID;
+            {% else %}
+    public static final String _ID = "{{field
+                .name_or_prefix}}";
+
+    public static final String {{ field.name_upper_case }} = "{{field
+                .name_or_prefix}}";
+            {% endif %}
+        {% else %}
+    public static final String {{field.name_upper_case}} = "{{field
+                .name_or_prefix}}";
+        {% endif %}
+
+    {% endfor %}
+
+    public static final String DEFAULT_ORDER = TABLE_NAME + "." +_ID;
+
+    // @formatter:off
+    public static final String[] ALL_COLUMNS = new String[] {
+        {% for field in data.model.fields  %}
+            {% if field.is_id %}
+            _ID {% if not loop.last %},{% endif %}
+            {% else %}
+            {{field.name_upper_case}}{% if not loop.last %},{%endif %}
+
+            {% endif %}
+        {% endfor %}
+    };
+    // @formatter:on
+
+    public static boolean hasColumns(String[] projection) {
+        if (projection == null) return true;
+        for (String c : projection) {
+        {% for field in data.model.fields  %}
+           {%  if not field.is_id %}
+            if (c.equals({{field.name_upper_case}}) || c.contains("." + {{field
+            .name_upper_case}})) return true;
+            {% endif %}
+        {% endfor %}
+        }
+        return false;
+    }
+
+    {% for field in data.model.fields  %}
+        {% if field.is_foreign_key %}
+    public static final String PREFIX_{{field.foreign_key.model.name_upper_case}} = TABLE_NAME + "__" + {{field.foreign_key.model.name_camel_Case}}Columns.TABLE_NAME;
+        {% endif %}
+    {% endfor %}
+}
+{% endblock %}

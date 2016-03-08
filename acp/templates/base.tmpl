@@ -1,6 +1,12 @@
-{% block main %}
-{% if config.header %}{{ config.header }}
+{% block header %}
+{% if data.config.header %}{{ data.config.header }} {% endif %}
 
-package {{ config.javapackage }}.base;
+{% endblock %}
+
+{% block package %}
+
+{% endblock %}
+
+{%  block main %}
 
 {% endblock %}

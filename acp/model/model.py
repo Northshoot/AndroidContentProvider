@@ -123,18 +123,19 @@ class DataModel:
         except KeyError:
             raise KeyError("No such model: %s" % mModelName)
 
-
+    @property
+    def fields(self): return self.mFields
 
     @classmethod
     def add_model(cls, model):
         #TODO: check the right type
         cls.MODELS_LIST.append(model)
 
-    def add_field(self, field, indx=None):
-        if indx:
-            self.mFields.insert(indx, field)
-        else:
-            self.mFields.append(field)
+    def add_id_field(self, field):
+        self.mFields.insert(0, field)
+
+    def add_field(self, field):
+        self.mFields.append(field)
 
     def get_fields(self):
         return copy.deepcopy(self.mFields)
@@ -185,7 +186,7 @@ class DataModel:
 
     @property
     def name_camel_case(self):
-        return word_tools.detect_conversion_method(self.mName)
+        return word_tools.lower_case_underscore_to_camel_case(self.mName)
 
     @property
     def package_name(self):

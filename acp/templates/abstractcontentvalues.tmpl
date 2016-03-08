@@ -1,5 +1,5 @@
-{% extends "base.tmpl" %}
-
+{% extends "base_base.tmpl" %}
+{% block main %}
 import android.content.Context;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -38,3 +38,4 @@ public abstract class AbstractContentValues {
         return context.getContentResolver().insert(uri(), values());
     }
 }
+{% endblock %}

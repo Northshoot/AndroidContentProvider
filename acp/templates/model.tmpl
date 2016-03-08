@@ -1,52 +1,52 @@
-<#if header??>
-{{header}
-{% endif %}
-package {{config.providerJavaPackage}.{{entity.packageName};
+{% extends "base_model.tmpl" %}
 
-import {{config.providerJavaPackage}.base.BaseModel;
+{% block main %}
+
+import {{data.config.PROVIDER_JAVA_PACKAGE}}.base.BaseModel;
 
 import java.util.Date;
-{% if config.useAnnotations %}
+{% if data.config.useAnnotations %}
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 {% endif %}
 
 /**
-<#if entity.documentation??>
- * {{entity.documentation}
-<#else>
- * Data model for the {@code {{entity.nameLowerCase}} table.
+{% if data.model.documentation %}
+ * {{ data.model.documentation }}
+{% else %}
+ * Columns for the {@code {{data.model.name_lower_case}} table.
 {% endif %}
  */
-public interface {{entity.nameCamelCase}Model extends BaseModel {
-    {% for entity.getFields() as field>
-        <#if !field.isId>
+public interface {{data.model.name_camel_case}}Model extends BaseModel {
+    {% for field in data.model.fields %}
+        {% if not field.is_id %}
 
-    /**
-    <#if field.documentation??>
-     * {{field.documentation}
-    <#else>
-     * Get the {@code {{field.nameLowerCase}} value.
-    {% endif %}
-        <#if field.isNullable>
-     * Can be {@code null}.
-        <#else>
-            <#if !field.type.hasNotNullableJavaType()>
-     * Cannot be {@code null}.
-            {% endif %}
+        /**
+        {% if field.documentation  %}
+         * {{field.documentation}}
+        {% else %}
+         * Get the {@code {{field.name_lower_case}} value.
         {% endif %}
-     */
-     {% if config.useAnnotations %}
-        <#if field.isNullable>
+        {% if field.is_nullable %}
+         * Can be {@code null}.
+        {% elif not field.has_not_nullable_java_type %}
+         * Cannot be {@code null}.
+        {% endif %}
+         */
+     {% if data.config.useAnnotations %}
+        {% if field.is_nullable %}
     @Nullable
-        <#else>
-            <#if !field.type.hasNotNullableJavaType()>
+        {% else %}
+            {% if not field.has_not_nullable_java_type %}
     @NonNull
             {% endif %}
         {% endif %}
      {% endif %}
-    {{field.javaTypeSimpleName} get<#if field.isForeign>{{field.path}{% endif %}{{field.nameCamelCase}();
+    {{field.simple_java_name}} get{% if field.is_foreign_key %}{{field.path}}{%
+            endif %}{{field.name_camel_case}}();
         {% endif %}
     {% endfor %}
 }
+
+{% endblock %}

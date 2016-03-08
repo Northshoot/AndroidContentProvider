@@ -1,5 +1,6 @@
-{% extends "layout.html" %}
+{% extends "base_base.tmpl" %}
 
+{%  block main %}
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -371,3 +372,4 @@ public abstract class AbstractSelection<T extends AbstractSelection<?>> {
         }
     }
 }
+{% endblock %}

@@ -1,5 +1,6 @@
-{% extends "base.tmpl" %}
+{% extends "base_base.tmpl" %}
 
+{% block main %}
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -14,7 +15,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.provider.BaseColumns;
-{% if config.useAnnotations %}
+{% if data.config.useAnnotations %}
 import android.support.annotation.NonNull;
 {% endif %}
 import android.util.Log;
@@ -196,3 +197,4 @@ public abstract class BaseContentProvider extends ContentProvider {
         return uri.buildUpon().appendQueryParameter(QUERY_LIMIT, limit).build();
     }
 }
+{% endblock %}
