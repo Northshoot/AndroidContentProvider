@@ -153,7 +153,20 @@ class Generator:
         Log.debug('*'*80)
 
     def make_manifest(self):
-        pass
+        tmpl_data = dict()
+        tmpl_data['config'] = self.app
+        tmpl_data['models'] = Models.ALL_DATA_MODELS
+        file_name = "provider_manifest_data.txt"
+        Log.info("Provider declaration to paste in the AndroidManifest.xml "
+                 "file is located in the file: %s" % file_name)
+        template = FileObject(build_path=self.app.output_path,
+                              file_name=file_name,
+                              tmpl_path=self.tmpl_path,
+                              tmpl_name='manifest.tmpl',
+                              tmpl_data=tmpl_data
+                              )
+        template.render_file()
+
 
     def make_table_columns(self):
         tmpl_data = dict()
@@ -291,8 +304,7 @@ class Generator:
         tmpl_data = dict()
         tmpl_data['config'] = self.app
         tmpl_data['models'] = Models.ALL_DATA_MODELS
-        template = FileObject(build_path=self.app.provider_dir +
-                              self.app.PROVIDER_CLASS_NAME.replace('.', '/'),
+        template = FileObject(build_path=self.app.provider_dir,
                               file_name=self.app.PROVIDER_CLASS_NAME + ".java",
                               tmpl_path=self.tmpl_path,
                               tmpl_name='contentprovider.tmpl',
@@ -305,9 +317,7 @@ class Generator:
         tmpl_data = dict()
         tmpl_data['config'] = self.app
         tmpl_data['models'] = Models.ALL_DATA_MODELS
-        template = FileObject(build_path=self.app.provider_dir +
-                                         self.app.PROVIDER_CLASS_NAME.replace(
-                                             '.', '/'),
+        template = FileObject(build_path=self.app.provider_dir,
                               file_name=self.app.SQLITE_OPEN_HELPER_CLASS_NAME + ".java",
                               tmpl_path=self.tmpl_path,
                               tmpl_name='sqliteopenhelper.tmpl',
@@ -316,7 +326,16 @@ class Generator:
         template.render_file()
 
     def make_generate_sqlite_open_helper_callbacks(self):
-        pass
+        tmpl_data = dict()
+        tmpl_data['config'] = self.app
+        tmpl_data['models'] = Models.ALL_DATA_MODELS
+        template = FileObject(build_path=self.app.provider_dir,
+                              file_name=self.app.SQLITE_OPEN_HELPER_CALLBACKS_CLASS_NAME + ".java",
+                              tmpl_path=self.tmpl_path,
+                              tmpl_name='sqliteopenhelpercallbacks.tmpl',
+                              tmpl_data=tmpl_data
+                              )
+        template.render_file()
 
     def make_model_representations(self):
         pass
@@ -336,7 +355,7 @@ class Generator:
         self.make_content_provider()
         self.make_sqlite_open_helper()
         self.make_generate_sqlite_open_helper_callbacks()
+        self.make_manifest()
         self.make_model_representations()
-        self.make_model_representer()
         self.make_model_representer()
         self.make_model_change_listner()

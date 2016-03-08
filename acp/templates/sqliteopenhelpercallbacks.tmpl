@@ -1,22 +1,21 @@
-<#if header??>
-{{header}
-{% endif %}
-package {{config.providerJavaPackage};
+{% extends "base.tmpl" %}
+{%  block main %}
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import android.util.Log;
 
-import {{config.projectPackageId}.BuildConfig;
+import {{data.config.PROJECT_PACKAGE_ID}}.BuildConfig;
 
 /**
  * Implement your custom database creation or upgrade code here.
  *
  * This file will not be overwritten if you re-run the content provider generator.
  */
-public class {{config.sqliteOpenHelperCallbacksClassName} {
-    private static final String TAG = {{config.sqliteOpenHelperCallbacksClassName}.class.getSimpleName();
+public class {{data.config.SQLITE_OPEN_HELPER_CALLBACKS_CLASS_NAME}} {
+    private static final String TAG = {{data.config
+    .SQLITE_OPEN_HELPER_CALLBACKS_CLASS_NAME}}.class.getSimpleName();
 
     public void onOpen(final Context context, final SQLiteDatabase db) {
         if (BuildConfig.DEBUG) Log.d(TAG, "onOpen");
@@ -36,8 +35,10 @@ public class {{config.sqliteOpenHelperCallbacksClassName} {
     public void onUpgrade(final Context context, final SQLiteDatabase db, final int oldVersion, final int newVersion) {
         if (BuildConfig.DEBUG) Log.d(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion);
         // Insert your upgrading code here.
-        <#if config.optString("sqliteUpgradeHelperClassName")?has_content>
-        new {{config.sqliteUpgradeHelperClassName}().onUpgrade(db, oldVersion, newVersion);
+        {%  if data.config.SQLLITE_UPGRADE_HELPER_CLASS_NAME %}
+        new {{config.SQLLITE_UPGRADE_HELPER_CLASS_NAME}}().onUpgrade(db,
+oldVersion, newVersion);
         {% endif %}
     }
 }
+{%  endblock %}

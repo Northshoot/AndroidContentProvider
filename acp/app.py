@@ -90,16 +90,26 @@ class Application:
                 self.AUTHORITY = self.PROVIDER_JAVA_PACKAGE
 
             try:
-                self.DATABASE_FILE_NAME = "databaseFileName"
+                self.DATABASE_FILE_NAME = self.config["databaseFileName"]
             except KeyError:
                 self.DATABASE_FILE_NAME = "ravel.db"
             try:
-                self.DATABASE_VERSION = "databaseVersion"
+                self.DATABASE_VERSION = self.config["databaseVersion"]
             except KeyError:
                 self.DATABASE_VERSION = 2
-
-            self.ENABLE_FOREIGN_KEY = "enableForeignKeys"
-            self.USE_ANNOTATIONS = "useAnnotations"
+            try:
+                self.ENABLE_FOREIGN_KEY = self.config["enableForeignKeys"]
+            except KeyError:
+                self.ENABLE_FOREIGN_KEY = False
+            try:
+                self.USE_ANNOTATIONS = self.config["useAnnotations"]
+            except KeyError:
+                self.USE_ANNOTATIONS = True
+            try:
+                self.SQLLITE_UPGRADE_HELPER_CLASS_NAME = self.config[
+                    "sqliteUpgradeHelperClassName"]
+            except KeyError:
+                self.SQLLITE_UPGRADE_HELPER_CLASS_NAME = False
         except KeyError as e:
             Log.debug("No such configuration key: " + str(e))
             Log.debug("Config Keys:")
