@@ -27,8 +27,6 @@ import acp.utils.tools as word_tools
 from acp.utils.logger import logger as Log
 
 
-
-
 class Field:
         def __init__(self, model,  name, documentation,  isId,  isIndex,
                      isNullable,  isAutoIncrement, defaultValue,  enumName,

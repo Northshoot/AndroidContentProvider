@@ -11,7 +11,7 @@ import android.support.annotation.Nullable;
 
 import {{data.config.providerJavaPackage}}.base.AbstractCursor;
 {% for joined_model in data.model.joined_models %}
-import {{data.config.providerJavaPackage}}.{{joined_model.package_name}}.*;
+import {{data.config.PROVIDER_JAVA_PACKAGE}}.{{joined_model.package_name}}.*;
 {% endfor %}
 
 /**

@@ -257,7 +257,14 @@ class Generator:
 
             template.render_file()
             # ContentValues wrapper
+            template = FileObject(build_path=out_dir,
+                                  file_name=model_name + "ContentValues.java",
+                                  tmpl_path=self.tmpl_path,
+                                  tmpl_name='contentvalues.tmpl',
+                                  tmpl_data=tmpl_data
+                                  )
 
+            template.render_file()
             # Selection builder
 
             # enums appending to one file
