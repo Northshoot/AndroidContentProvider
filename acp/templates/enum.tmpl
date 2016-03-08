@@ -1,5 +1,5 @@
 {% extends "base_model.tmpl" %}
-
+{% block main %}
 /**
  * Possible values for the {@code {{field.nameLowerCase}} column of the {@code {{entity.nameLowerCase}} table.
  */
@@ -12,3 +12,5 @@ public enum {{data.field.enum_name}} {
 
     {% endfor %}
 }
+
+{% endblock %}
