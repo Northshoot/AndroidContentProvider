@@ -265,7 +265,14 @@ class Generator:
                                   )
 
             template.render_file()
+
             # Selection builder
+            template = FileObject(build_path=out_dir,
+                                  file_name=model_name + "Selection.java",
+                                  tmpl_path=self.tmpl_path,
+                                  tmpl_name='selection.tmpl',
+                                  tmpl_data=tmpl_data
+                                  )
 
             # enums appending to one file
             pass

@@ -1,8 +1,6 @@
-<#if header??>
-{{header}
-{% endif %}
-package {{config.providerJavaPackage}.{{entity.packageName};
+{% extends "base_model.tmpl" %}
 
+{% block main %}
 import java.util.Date;
 
 import android.content.Context;
@@ -10,18 +8,18 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 
-import {{config.providerJavaPackage}.base.AbstractSelection;
-{% for entity.joinedEntities as joinedEntity>
-import {{config.providerJavaPackage}.{{joinedEntity.packageName}.*;
+import {{data.config.PROVIDER_JAVA_PACKAGE}}.base.AbstractSelection;
+{% for joined_model in data.model.joined_models %}
+import {{data.config.PROVIDER_JAVA_PACKAGE}}.{{joined_model.package_name}}.*;
 {% endfor %}
 
 /**
- * Selection for the {@code {{entity.nameLowerCase}} table.
+ * Selection for the {@code {{data.model.name_lover_case}} table.
  */
-public class {{entity.nameCamelCase}Selection extends AbstractSelection<{{entity.nameCamelCase}Selection> {
+public class {{data.model.name_camel_case}}Selection extends AbstractSelection<{{data.model.name_camel_case}}Selection %} {
     @Override
     protected Uri baseUri() {
-        return {{entity.nameCamelCase}Columns.CONTENT_URI;
+        return {{data.model.name_camel_case}}Columns.CONTENT_URI;
     }
 
     /**
@@ -29,18 +27,18 @@ public class {{entity.nameCamelCase}Selection extends AbstractSelection<{{entity
      *
      * @param contentResolver The content resolver to query.
      * @param projection A list of which columns to return. Passing null will return all columns, which is inefficient.
-     * @return A {@code {{entity.nameCamelCase}Cursor} object, which is positioned before the first entry, or null.
+     * @return A {@code {{data.model.name_camel_case}}Cursor} object, which is positioned before the first entry, or null.
      */
-    public {{entity.nameCamelCase}Cursor query(ContentResolver contentResolver, String[] projection) {
+    public {{data.model.name_camel_case}}Cursor query(ContentResolver contentResolver, String[] projection) {
         Cursor cursor = contentResolver.query(uri(), projection, sel(), args(), order());
         if (cursor == null) return null;
-        return new {{entity.nameCamelCase}Cursor(cursor);
+        return new {{data.model.name_camel_case}}Cursor(cursor);
     }
 
     /**
      * Equivalent of calling {@code query(contentResolver, null)}.
      */
-    public {{entity.nameCamelCase}Cursor query(ContentResolver contentResolver) {
+    public {{data.model.name_camel_case}}Cursor query(ContentResolver contentResolver) {
         return query(contentResolver, null);
     }
 
@@ -49,207 +47,209 @@ public class {{entity.nameCamelCase}Selection extends AbstractSelection<{{entity
      *
      * @param context The context to use for the query.
      * @param projection A list of which columns to return. Passing null will return all columns, which is inefficient.
-     * @return A {@code {{entity.nameCamelCase}Cursor} object, which is positioned before the first entry, or null.
+     * @return A {@code {{data.model.name_camel_case}}Cursor} object, which is positioned before the first entry, or null.
      */
-    public {{entity.nameCamelCase}Cursor query(Context context, String[] projection) {
+    public {{data.model.name_camel_case}}Cursor query(Context context, String[] projection) {
         Cursor cursor = context.getContentResolver().query(uri(), projection, sel(), args(), order());
         if (cursor == null) return null;
-        return new {{entity.nameCamelCase}Cursor(cursor);
+        return new {{data.model.name_camel_case}}Cursor(cursor);
     }
 
     /**
      * Equivalent of calling {@code query(context, null)}.
      */
-    public {{entity.nameCamelCase}Cursor query(Context context) {
+    public {{data.model.name_camel_case}}Cursor query(Context context) {
         return query(context, null);
     }
 
 
-    public {{entity.nameCamelCase}Selection id(long... value) {
-        addEquals("{{entity.nameLowerCase}." + {{entity.nameCamelCase}Columns._ID, toObjectArray(value));
+    public {{data.model.name_camel_case}}Selection id(long... value) {
+        addEquals("{{data.model.name_lover_case}}." + {{data.model.name_camel_case}}Columns._ID, toObjectArray(value));
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection idNot(long... value) {
-        addNotEquals("{{entity.nameLowerCase}." + {{entity.nameCamelCase}Columns._ID, toObjectArray(value));
+    public {{data.model.name_camel_case}}Selection idNot(long... value) {
+        addNotEquals("{{data.model.name_lover_case}}." + {{data.model.name_camel_case}}Columns._ID, toObjectArray(value));
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection orderById(boolean desc) {
-        orderBy("{{entity.nameLowerCase}." + {{entity.nameCamelCase}Columns._ID, desc);
+    public {{data.model.name_camel_case}}Selection orderById(boolean desc) {
+        orderBy("{{data.model.name_lover_case}}." + {{data.model.name_camel_case}}Columns._ID, desc);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection orderById() {
+    public {{data.model.name_camel_case}}Selection orderById() {
         return orderById(false);
     }
-    {% for entity.getFieldsIncludingJoins() as field>
-    <#if field.nameLowerCase != "_id">
-    <#switch field.type.name()>
-    <#case "BOOLEAN">
+    {% for field in data.model.getFieldsIncludingJoins() %}
+        {% if field.name_lower_case != "_id"  %}
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}({{field.javaTypeSimpleName} value) {
-        addEquals({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, toObjectArray(value));
+            {% if filed.type == "BOOLEAN" %}
+
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}
+                    {{field.path_uncap_first}}{{field
+                    .name_camel_case}}{% else %}{{field
+                    .name_camel_case_lower_case}}{% endif %}({{field
+                    .simple_java_name}} value) {
+        addEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, toObjectArray(value));
         return this;
     }
-    <#break>
-    <#default>
+            {% else %}
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}({{field.javaTypeSimpleName}... value) {
-        addEquals({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, <#if field.isConvertionNeeded>toObjectArray(value)<#else>value{% endif %});
-        return this;
-    }
-
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}Not({{field.javaTypeSimpleName}... value) {
-        addNotEquals({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, <#if field.isConvertionNeeded>toObjectArray(value)<#else>value{% endif %});
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}({{field.simple_java_name}}... value) {
+        addEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, {% if field.isConvertionNeeded %}toObjectArray(value){% else %}value{% endif %});
         return this;
     }
 
-    </#switch>
-    <#switch field.type.name()>
-    <#case "DATE">
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}(<#if field.isNullable>Long<#else>long{% endif %}... value) {
-        addEquals({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, <#if field.isNullable>value<#else>toObjectArray(value){% endif %});
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Not({{field.simple_java_name}}... value) {
+        addNotEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, {% if field.isConvertionNeeded %}toObjectArray(value){% else %}value{% endif %});
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}After(Date value) {
-        addGreaterThan({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
+            {%  endif %}
+
+            {% if filed.type == "DATE" %}
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}({% if field.isNullable %}Long{% else %}long{% endif %}... value) {
+        addEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, {% if field.isNullable %}value{% else %}toObjectArray(value){% endif %});
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}AfterEq(Date value) {
-        addGreaterThanOrEquals({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}After(Date value) {
+        addGreaterThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}Before(Date value) {
-        addLessThan({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}AfterEq(Date value) {
+        addGreaterThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}BeforeEq(Date value) {
-        addLessThanOrEquals({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
-        return this;
-    }
-    <#break>
-    <#case "INTEGER">
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}Gt(int value) {
-        addGreaterThan({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Before(Date value) {
+        addLessThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}GtEq(int value) {
-        addGreaterThanOrEquals({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}BeforeEq(Date value) {
+        addLessThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        return this;
+    }
+            {% elif filed.type =="INTEGER" %}
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Gt(int value) {
+        addGreaterThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}Lt(int value) {
-        addLessThan({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}GtEq(int value) {
+        addGreaterThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}LtEq(int value) {
-        addLessThanOrEquals({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
-        return this;
-    }
-    <#break>
-    <#case "LONG">
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}Gt(long value) {
-        addGreaterThan({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Lt(int value) {
+        addLessThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}GtEq(long value) {
-        addGreaterThanOrEquals({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}LtEq(int value) {
+        addLessThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        return this;
+    }
+            {% elif filed.type == "LONG" %}
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Gt(long value) {
+        addGreaterThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}Lt(long value) {
-        addLessThan({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}GtEq(long value) {
+        addGreaterThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}LtEq(long value) {
-        addLessThanOrEquals({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
-        return this;
-    }
-    <#break>
-    <#case "FLOAT">
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}Gt(float value) {
-        addGreaterThan({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Lt(long value) {
+        addLessThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}GtEq(float value) {
-        addGreaterThanOrEquals({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}LtEq(long value) {
+        addLessThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        return this;
+    }
+            {% elif filed.type == "FLOAT" %}
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Gt(float value) {
+        addGreaterThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}Lt(float value) {
-        addLessThan({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}GtEq(float value) {
+        addGreaterThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}LtEq(float value) {
-        addLessThanOrEquals({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
-        return this;
-    }
-    <#break>
-    <#case "DOUBLE">
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}Gt(double value) {
-        addGreaterThan({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Lt(float value) {
+        addLessThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}GtEq(double value) {
-        addGreaterThanOrEquals({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}LtEq(float value) {
+        addLessThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        return this;
+    }
+            {% elif filed.type == "DOUBLE" %}
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Gt(double value) {
+        addGreaterThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}Lt(double value) {
-        addLessThan({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}GtEq(double value) {
+        addGreaterThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}LtEq(double value) {
-        addLessThanOrEquals({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
-        return this;
-    }
-    <#break>
-    <#case "STRING">
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}Like(String... value) {
-        addLike({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Lt(double value) {
+        addLessThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}Contains(String... value) {
-        addContains({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}LtEq(double value) {
+        addLessThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        return this;
+    }
+            {% elif filed.type == "STRING" %}
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Like(String... value) {
+        addLike({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}StartsWith(String... value) {
-        addStartsWith({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Contains(String... value) {
+        addContains({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection <#if field.isForeign>{{field.path?uncap_first}{{field.nameCamelCase}<#else>{{field.nameCamelCaseLowerCase}{% endif %}EndsWith(String... value) {
-        addEndsWith({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, value);
-        return this;
-    }
-    <#break>
-    </#switch>
-
-    public {{entity.nameCamelCase}Selection orderBy<#if field.isForeign>{{field.path}{{field.nameCamelCase}<#else>{{field.nameCamelCase}{% endif %}(boolean desc) {
-        orderBy({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, desc);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}StartsWith(String... value) {
+        addStartsWith({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
-    public {{entity.nameCamelCase}Selection orderBy<#if field.isForeign>{{field.path}{{field.nameCamelCase}<#else>{{field.nameCamelCase}{% endif %}() {
-        orderBy({{field.entity.nameCamelCase}Columns.{{field.nameUpperCase}, false);
+    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}EndsWith(String... value) {
+        addEndsWith({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
-    {% endif %}
+            {% endif %}
+
+
+    public {{data.model.name_camel_case}}Selection orderBy{% if field
+    .is_foreign_key %}{{field.path}}{{field.name_camel_case}}{% else %}{{field.name_camel_case}}{% endif %}(boolean desc) {
+        orderBy({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, desc);
+        return this;
+    }
+
+    public {{data.model.name_camel_case}}Selection orderBy{% if field
+    .is_foreign_key %}{{field.path}}{{field.name_camel_case}}{% else %}{{field.name_camel_case}}{% endif %}() {
+        orderBy({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, false);
+        return this;
+    }
+
+
+        {% endif %}
     {% endfor %}
 }
-Status API Training Shop Blog About Pricing
+{%  endblock %}

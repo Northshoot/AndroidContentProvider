@@ -169,6 +169,11 @@ class Field:
             self.mIsAmbiguous = val
 
         @property
+        def path_uncap_first(self):
+            s=self.path
+            return s[0].lower()+s[1:]
+
+        @property
         def function_cursor_get_or_null(self):
             return "get"+self._mNullableJavaType + "OrNull"
 
