@@ -1,14 +1,14 @@
-{% extends "base.tmpl" %}
+{% extends "base_model.tmpl" %}
 
 /**
  * Possible values for the {@code {{field.nameLowerCase}} column of the {@code {{entity.nameLowerCase}} table.
  */
-public enum {{field.enumName} {
-    {% for field.enumValues as enumValue>
+public enum {{data.field.enum_name}} {
+    {% for enumValue in data.field.enum_values %}
     /**
-     * {{enumValue.documentation!""}
+     * {{enumValue.documentation}}
      */
-    {{enumValue.name},
+    {{enumValue.name}},
 
     {% endfor %}
 }

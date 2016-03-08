@@ -275,7 +275,17 @@ class Generator:
                                   )
 
             # enums appending to one file
-            pass
+            for field in model.fields:
+                if field.is_enum:
+                    tmpl_data['field']=field
+                    template = FileObject(build_path=out_dir,
+                                          file_name=field.enum_name + ".java",
+                                          tmpl_path=self.tmpl_path,
+                                          tmpl_name='enum.tmpl',
+                                          tmpl_data=tmpl_data
+                                          )
+
+                    template.render_file()
 
     def make_content_provider(self):
         pass

@@ -95,6 +95,9 @@ class Field:
             return self.name_camel_case.lower()
 
         @property
+        def is_enum(self): return False
+
+        @property
         def enum_name(self): return self.mEnumName
 
         @property
@@ -298,6 +301,8 @@ class EnumField(Field):
     @property
     def simple_java_name(self): return "null"
 
+    @property
+    def is_enum(self): return True
 
 class FloatField(Field):
     """
@@ -405,7 +410,6 @@ class EnumValue(Field):
         Log.debug("Created: " + self.__str__())
         self.mName = name
         self.mDocumentation = documentation
-
 
     @property
     def name(self): return self.mName
