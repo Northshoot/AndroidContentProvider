@@ -10,7 +10,7 @@
 #
 # Copyright (C) 2016 Laurynas Riliskis
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
+# Licensed under the Apache License, Version 2.0 (the "License")
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
@@ -22,26 +22,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Created on 3/7/16.
+# Created on 3/9/16.
 
 
-class Constraint:
-
-    class Json:
-        def __init__(self):
-            self.NAME = "name";
-            self.DEFINITION = "definition";
-
-    def __init__(self, name, definition):
-        self.mName = name
-        self.mDefinition=definition
-
-    @property
-    def name(self): return self.mName
-
-    @property
-    def definition(self): return self.definition
-
-    def __str__(self):
-        return "Constraint [mName=" + self.mName + ", mDefinition=" + \
-               self.mDefinition + "]"
+class SqlTableStrings:
+    CONCAT = "res.tablesWithJoins += "
+    HAS_COLUMNS = ".hasColumns(projection)"
+    OPEN_BRACE = ") {\n"
+    IF = "if ("
+    OR = " || "
+    INDENT1 = "                "
+    INDENT2 = "                    "
+    PLUS = " + "
+    COLUMNS = "Columns"
+    TABLE_NAME = ".TABLE_NAME"
+    LEFT_OUTER_JOIN = "\" LEFT OUTER JOIN \""
+    ON = "\" ON \""
+    EQUALS = "\"=\""
+    DOT = "\".\""
+    AS = "\" AS \""
+    PREFIX = ".PREFIX_"
