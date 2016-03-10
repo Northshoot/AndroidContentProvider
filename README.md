@@ -4,9 +4,7 @@
 
 Generator for Android ContentProvider 
 =================================
-
-based on https://github.com/BoD/android-contentprovider-generator/ but 
-rewritten in Python jinja2 template system
+written in Python jinja2 template system
 
 
 This tool generates an Android ContentProvider, representation layer and 
@@ -137,14 +135,6 @@ the data model.
 Licence
 -------
 
-          _______  _______  _______  _______  _
- |\     /|(  ___  )(  ____ )(       )(  ___  )( (    /||\     /|
- | )   ( || (   ) || (    )|| () () || (   ) ||  \  ( |( \   / )
- | (___) || (___) || (____)|| || || || |   | ||   \ | | \ (_) /
- |  ___  ||  ___  ||     __)| |(_)| || |   | || (\ \) |  \   /
- | (   ) || (   ) || (\ (   | |   | || |   | || | \   |   ) (
- | )   ( || )   ( || ) \ \__| )   ( || (___) || )  \  |   | |
- |/     \||/     \||/   \__/|/     \|(_______)|/    )_)   \_/
 
  Copyright (C) 2016 Laurynas Riliskis
 
