@@ -28,6 +28,7 @@ import json
 import copy
 import acp.utils.tools as word_tools
 from acp.utils.logger import logger as Log
+from .table import SqlBuilder
 
 
 class Models:
@@ -78,22 +79,6 @@ class DataModel:
     """
     Class holding particular model information
     """
-    CONCAT = "res.tablesWithJoins += "
-    HAS_COLUMNS = ".hasColumns(projection)"
-    OPEN_BRACE = ") {\n"
-    IF = "if ("
-    OR = " || "
-    INDENT1 = "                "
-    INDENT2 = "                    "
-    PLUS = " + "
-    COLUMNS = "Columns"
-    TABLE_NAME = ".TABLE_NAME"
-    LEFT_OUTER_JOIN = "\" LEFT OUTER JOIN \""
-    ON = "\" ON \""
-    EQUALS = "\"=\""
-    DOT = "\".\""
-    AS = "\" AS \""
-    PREFIX = ".PREFIX_"
     ALL_MODELS = dict()
 
     def __init__(self, file_name=None,  **kwargs):
@@ -168,7 +153,6 @@ class DataModel:
                 ret + foreignKey.model \
                     .get_fields_including_joins(True, newPath, forceNullable)
 
-        print("LENGHT: " + str(len(ret)))
         return ret
 
     @property
@@ -220,20 +204,19 @@ class DataModel:
                     f2.mIsAmbiguous()
 
     def all_joined_table_names(self):
-        # ret = self.name_camel_case
-        # ret+=
-        # ret +=
-        # ret +=
-        # ret +=
-        # ret +=
-        # ret +=
-        # ret +=
-        pass
+        ret = self.name_camel_case
+        ret += SqlBuilder.COLUMNS
+        ret += SqlBuilder.TABLE_NAME
+        ret += SqlBuilder.CHAR_SEMICOLON
+        ret += self.add_all_joined_clauses()
+        return ret
 
-    def add_all_joined_clauses(self):
-        pass
+
+
+    @property
+    def documentation(self): return self.mDocumentation
 
     def __str__(self):
         return "Entity [mName=" + self.mName + ", mFields=" + \
         str(self.mFields) + ", mConstraints=" + str(self.mConstraints) + \
-        ", mDocumentation=" + self.mDocumentation + "]";
+        ", mDocumentation=" + self.mDocumentation + "]"

@@ -25,10 +25,11 @@
 # Created on 3/9/16.
 
 
-class SqlTableStrings:
+class SqlBuilder:
     CONCAT = "res.tablesWithJoins += "
     HAS_COLUMNS = ".hasColumns(projection)"
-    OPEN_BRACE = ") {\n"
+    OPEN_BRACE = ") {"
+    CLOSE_BRACE = "}"
     IF = "if ("
     OR = " || "
     INDENT1 = "                "
@@ -42,3 +43,101 @@ class SqlTableStrings:
     DOT = "\".\""
     AS = "\" AS \""
     PREFIX = ".PREFIX_"
+    NEW_LINE = "\n"
+    CHAR_SEMICOLON = ";"
+    CHAR_DOT = "."
+
+    @classmethod
+    def add_all_joined_clauses(cls, model, alias):
+        ret = ""
+        for field in model.fields:
+            foreign_key = field.foreign_key
+            if foreign_key:
+                continue
+            ret += SqlBuilder.NEW_LINE
+            ret += SqlBuilder.INDENT1
+            ret += SqlBuilder.IF
+
+            ret += SqlBuilder.column_clauses(foreign_key.model)
+            ret += SqlBuilder.OPEN_BRACE
+            ret += SqlBuilder.NEW_LINE
+            ret += SqlBuilder.INDENT2
+            ret += SqlBuilder.CONCAT
+            ret += SqlBuilder.LEFT_OUTER_JOIN
+            ret += SqlBuilder.PLUS
+
+            ret += field.foreign_key.model.name_camel_case
+            ret += SqlBuilder.COLUMNS
+            ret += SqlBuilder.TABLE_NAME
+            ret += SqlBuilder.PLUS
+            ret += SqlBuilder.AS
+            ret += SqlBuilder.PLUS
+            ret += SqlBuilder.prefix(model, foreign_key)
+            ret += SqlBuilder.PLUS
+            ret += SqlBuilder.ON
+            ret += SqlBuilder.PLUS
+            ret += SqlBuilder.column_name(model, field, alias)
+
+            ret += SqlBuilder.PLUS
+            ret += SqlBuilder.EQUALS
+            ret += SqlBuilder.PLUS
+
+            ret += SqlBuilder.prefix(model, foreign_key)
+            ret += SqlBuilder.PLUS
+            ret += SqlBuilder.DOT
+            ret += SqlBuilder.PLUS
+            ret += foreign_key.model.name_camel_case
+            ret += SqlBuilder.COLUMNS
+            ret += SqlBuilder.CHAR_DOT
+            ret += foreign_key.model.name_camel_case
+            ret += SqlBuilder.SEMICOLON
+            ret += SqlBuilder.NEW_LINE
+            ret += SqlBuilder.INDENT1
+            ret += SqlBuilder.CLOSE_BRACE
+            ret += SqlBuilder.add_all_joined_clauses(foreign_key.model,
+                                                      cls.table_prefix(model,
+                                                                      foreign_key))
+        return ret
+
+    @classmethod
+    def table_prefix(cls, model, field):
+        ret = model.name_camel_case
+        ret += SqlBuilder.COLUMNS
+        ret += SqlBuilder.PREFIX
+        ret += field.model.name_upper_case
+        return ret
+
+    @classmethod
+    def column_clauses(cls, model):
+        ret = model.name_camel_case
+        ret += SqlBuilder.COLUMNS
+        ret += SqlBuilder.HAS_COLUMNS
+
+        for field in model.fields:
+            foreign_key = field.foreign_key
+            if foreign_key:
+                continue
+            ret += SqlBuilder.OR
+            ret += cls.column_clauses(foreign_key.model)
+        return ret
+
+    @classmethod
+    def column_name(cls, model, field, alias):
+        ret = ""
+        if alias:
+            ret += alias
+            ret += SqlBuilder.PLUS
+        else:
+            ret += model.name_camel_case
+            ret += SqlBuilder.COLUMNS
+            ret += SqlBuilder.TABLE_NAME
+            ret += SqlBuilder.PLUS
+
+        ret += SqlBuilder.DOT
+        ret += SqlBuilder.PLUS
+        ret += model.name_camel_case
+        ret += SqlBuilder.COLUMNS
+        ret += SqlBuilder.CHAR_DOT
+        ret += field.name_upper_case
+        return ret
+

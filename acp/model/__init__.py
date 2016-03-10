@@ -24,7 +24,6 @@
 #
 # Created on 2/29/16.
 
-
 from acp.utils.logger import logger as Log
 from .json_representation import JsonRepresentation
 from .constraint import Constraint
@@ -45,6 +44,7 @@ __ALL__FIELDS__ = {
 }
 
 from .model import DataModel, Models
+
 
 
 
