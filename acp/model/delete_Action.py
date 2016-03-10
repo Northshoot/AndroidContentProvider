@@ -27,6 +27,7 @@
 import enum
 from . import JsonRepresentation
 from . import Log
+
 sOnDeleteAction = dict()
 
 
@@ -44,12 +45,12 @@ class Action:
         return sOnDeleteAction.get(self.mJsonName).replace('_', ' ')
 
     @classmethod
-    def from_json_name(self, json_name):
+    def from_json_name(cls, json_name):
         try:
             action = sOnDeleteAction.get(json_name)
             return action
         except KeyError:
-            raise KeyError("No such action: %s" %json_name)
+            raise KeyError("No such action: %s" % json_name)
 
 
 class OnDeleteAction(enum.Enum):

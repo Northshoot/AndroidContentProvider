@@ -32,7 +32,6 @@ from .table import SqlBuilder
 
 
 class Models:
-
     ALL_DATA_MODELS = []
     HEADER = None
 
@@ -72,7 +71,7 @@ class Models:
                     Log.info("\nNote: in the table '" + m.name_lower_case +
                              "', the column '" + f.name + "' will be named '" +
                              f.prefixed_name + "' to avoid ambiguities "
-                             "when joining.\n")
+                                               "when joining.\n")
 
 
 class DataModel:
@@ -81,7 +80,7 @@ class DataModel:
     """
     ALL_MODELS = dict()
 
-    def __init__(self, file_name=None,  **kwargs):
+    def __init__(self, file_name=None, **kwargs):
 
         self.mModel = None
         self._json_model = None
@@ -100,7 +99,7 @@ class DataModel:
 
         self.mFields = []
         self.mConstraints = []
-        #add self to global list
+        # add self to global list
         DataModel.ALL_MODELS[self.mName] = self
 
     @classmethod
@@ -111,11 +110,12 @@ class DataModel:
             raise KeyError("No such model: %s" % mModelName)
 
     @property
-    def fields(self): return self.mFields
+    def fields(self):
+        return self.mFields
 
     @classmethod
     def add_model(cls, model):
-        #TODO: check the right type
+        # TODO: check the right type
         cls.MODELS_LIST.append(model)
 
     def add_id_field(self, field):
@@ -128,7 +128,8 @@ class DataModel:
         return copy.deepcopy(self.mFields)
 
     @property
-    def fields_including_joins(self): return self.get_fields_including_joins()
+    def fields_including_joins(self):
+        return self.get_fields_including_joins()
 
     def get_fields_including_joins(self, isForeign=False, path="",
                                    forceNullable=False):
@@ -156,7 +157,8 @@ class DataModel:
         return ret
 
     @property
-    def joined_models(self): return self.get_joined_models()
+    def joined_models(self):
+        return self.get_joined_models()
 
     def get_joined_models(self):
         ret = []
@@ -176,7 +178,8 @@ class DataModel:
         self.mConstraints.append(constrain)
 
     @property
-    def constrains(self): return self.mConstrains
+    def constrains(self):
+        return self.mConstrains
 
     @property
     def name_camel_case(self):
@@ -187,7 +190,8 @@ class DataModel:
         return self.name_lower_case.replace("_", "")
 
     @property
-    def name_lower_case(self): return self.mName.lower()
+    def name_lower_case(self):
+        return self.mName.lower()
 
     @property
     def name_upper_case(self):
@@ -211,12 +215,11 @@ class DataModel:
         ret += self.add_all_joined_clauses()
         return ret
 
-
-
     @property
-    def documentation(self): return self.mDocumentation
+    def documentation(self):
+        return self.mDocumentation
 
     def __str__(self):
         return "Entity [mName=" + self.mName + ", mFields=" + \
-        str(self.mFields) + ", mConstraints=" + str(self.mConstraints) + \
-        ", mDocumentation=" + self.mDocumentation + "]"
+               str(self.mFields) + ", mConstraints=" + str(self.mConstraints) + \
+               ", mDocumentation=" + self.mDocumentation + "]"

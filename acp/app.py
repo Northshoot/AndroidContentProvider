@@ -31,17 +31,17 @@ class Application:
     """
     Class holding application level configuration
     """
-    __ALL__ ="appPackageName\n" \
-             "providerJavaPackage\n" \
-             "providerClassName\n" \
-             "authority\n" \
-             "databaseFileName\n" \
-             "databaseVersion\n" \
-             "enableForeignKeys\n" \
-             "useAnnotations\n" \
-
-    __DEF__HEADER__ = \
-"""
+    __ALL__ = "appPackageName\n" \
+              "providerJavaPackage\n" \
+              "providerClassName\n" \
+              "authority\n" \
+              "databaseFileName\n" \
+              "databaseVersion\n" \
+              "enableForeignKeys\n" \
+              "useAnnotations\n" \
+ \
+            __DEF__HEADER__ = \
+                """
 /*
  * Copyright (C) 2016 Laurynas Riliskis
  *
@@ -71,7 +71,7 @@ class Application:
         try:
             self.PROJECT_PACKAGE_ID = self.config["appPackageName"]
             self.PROVIDER_JAVA_PACKAGE = self.PROJECT_PACKAGE_ID + \
-                                             "provider"
+                                         "provider"
 
             try:
                 self.PROVIDER_CLASS_NAME = self.config["providerClassName"]
@@ -82,7 +82,8 @@ class Application:
             except KeyError:
                 self.SQLITE_OPEN_HELPER_CLASS_NAME = "RavelSQLiteOpenHelper"
             try:
-                self.SQLITE_OPEN_HELPER_CALLBACKS_CLASS_NAME = self.config["sqliteOpenHelperCallbacksClassName"]
+                self.SQLITE_OPEN_HELPER_CALLBACKS_CLASS_NAME = self.config[
+                    "sqliteOpenHelperCallbacksClassName"]
             except KeyError:
                 self.SQLITE_OPEN_HELPER_CALLBACKS_CLASS_NAME = \
                     "RavelSQLiteOpenHelperCallbacks"
@@ -118,13 +119,13 @@ class Application:
             Log.debug(Application.__ALL__)
 
         self.provider_dir = self.output_path + \
-                            self.PROVIDER_JAVA_PACKAGE.replace('.','/') + "/"
+                            self.PROVIDER_JAVA_PACKAGE.replace('.', '/') + "/"
 
     def set_header(self, header):
         self.header = header
 
-    # def __str__(self):
-    #     _str = "Application: ["
-    #     for key, val in self.__dict__:
-    #         _str+=key + "=" + val
-    #     return _str +"]"
+        # def __str__(self):
+        #     _str = "Application: ["
+        #     for key, val in self.__dict__:
+        #         _str+=key + "=" + val
+        #     return _str +"]"

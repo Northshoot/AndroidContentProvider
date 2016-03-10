@@ -95,7 +95,7 @@ class SqlBuilder:
             ret += SqlBuilder.INDENT1
             ret += SqlBuilder.CLOSE_BRACE
             ret += SqlBuilder.add_all_joined_clauses(foreign_key.model,
-                                                      cls.table_prefix(model,
+                                                     cls.table_prefix(model,
                                                                       foreign_key))
         return ret
 
@@ -140,4 +140,3 @@ class SqlBuilder:
         ret += SqlBuilder.CHAR_DOT
         ret += field.name_upper_case
         return ret
-

@@ -26,15 +26,14 @@
 
 
 class Constraint:
-
     class Json:
         def __init__(self):
-            self.NAME = "name";
-            self.DEFINITION = "definition";
+            self.NAME = "name"
+            self.DEFINITION = "definition"
 
     def __init__(self, name, definition):
         self.mName = name
-        self.mDefinition=definition
+        self.mDefinition = definition
 
     @property
     def name(self): return self.mName

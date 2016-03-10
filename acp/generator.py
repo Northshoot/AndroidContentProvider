@@ -32,12 +32,13 @@ from .model import JsonRepresentation as Json, Models, DataModel
 from .model import Action, ForeignKey, __ALL__FIELDS__, Constraint
 from .builder.base import FileObject
 
+
 class Generator:
     def __init__(self, args):
         self.args = args
         self._files = get_file_names(args.path)
-        self.config_file_name = self._files[0] #fist one is config
-        self.models_file_names = self._files[1:] #the rest are models
+        self.config_file_name = self._files[0]  # fist one is config
+        self.models_file_names = self._files[1:]  # the rest are models
         Log.debug("Model to load: " + str(self._files))
         self.app = Application(args.path, args.output, self.config_file_name)
         self.tmpl_path = os.path.dirname(os.path.realpath(__file__)) + \
@@ -47,14 +48,12 @@ class Generator:
         self.config = dict()
         self.config['header'] = Application.__DEF__HEADER__
 
-
     def load_models(self):
         # load files
         for mFile in self.models_file_names:
             Log.debug("Model path: " + self.args.path + mFile)
-            model_name =mFile.split('.json')[0]
+            model_name = mFile.split('.json')[0]
             Log.debug("Model name: " + model_name)
-            json_model = None
             with open(mFile, encoding='utf-8') as data_file:
                 json_model = json.loads(data_file.read())
                 Log.debug("json_model=" + str(json_model))
@@ -83,7 +82,7 @@ class Generator:
                 isNullable = field.get(Json.NULLABLE)
                 if not isNullable:
                     isNullable = True
-                #TODO: supported for autoincreament
+                # TODO: supported for autoincreament
                 isAutoIncrement = False
                 if not isIndex:
                     isIndex = False
@@ -91,7 +90,7 @@ class Generator:
                 defaultValueLegacy = field.get(Json.DEFAULT_VALUE_LEGACY)
                 enumName = field.get(Json.ENUM_NAME)
                 enumValuesJson = field.get(Json.ENUM_VALUES)
-                #TODO: fix enums
+                # TODO: fix enums
                 enumValues = []
                 if enumValuesJson:
                     enumValues = []
@@ -99,24 +98,24 @@ class Generator:
                         pass
 
                 foreign_key_json = field.get(Json.FOREIGN_KEY)
-                foreign_key= None
+                foreign_key = None
                 isId = False
                 if foreign_key_json:
                     table = foreign_key_json.get(Json.FOREIGN_KEY_TABLE)
-                    on_delete = Action.from_json_name(Json.FOREIGN_KEY_ON_DELETE_ACTION)
+                    on_delete = Action.from_json_name(
+                        Json.FOREIGN_KEY_ON_DELETE_ACTION)
                     foreign_key = ForeignKey(table, on_delete)
 
                 model.add_field(__ALL__FIELDS__.get(field_type)(
-                                model, name, documentation, isId, isIndex,
-                                isNullable, isAutoIncrement, defaultValue, enumName,
-                                enumValues, foreign_key
-                                          )
-                                )
+                    model, name, documentation, isId, isIndex,
+                    isNullable, isAutoIncrement, defaultValue, enumName,
+                    enumValues, foreign_key
+                )
+                )
                 # end field loop
-            #TODO check id fied creation
+            # TODO check id fied creation
             id_fields = json_model.get(Json.ID_FIELD)
             id_field_name = "_id"
-            id_field_obj = None
             if id_fields:
                 if len(id_fields) != 1:
                     raise ValueError("Invalid number of idField ")
@@ -124,21 +123,24 @@ class Generator:
             if "_id" == id_field_name:
                 name = id_field_name
                 id_field_obj = __ALL__FIELDS__.get("Long")(
-                              model, name, "Primary key.",  True, False,
-                              False, True, None, None, None, None
+                    model, name, "Primary key.", True, False,
+                    False, True, None, None, None, None
                 )
                 model.add_id_field(id_field_obj)
             else:
                 id_field_obj = model.get_field_by_name(id_field_name)
                 if not id_field_obj:
-                    raise ValueError("No just ID field %s" %id_field_name)
+                    raise ValueError("No just ID field %s" % id_field_name)
                 if id_field_obj.type not in ["Integer", "Long", "Date", "Enum"]:
-                    raise ValueError("ID field must be of type Integer, Long, Date or Enum")
+                    raise ValueError(
+                        "ID field must be of type Integer, Long, Date or Enum")
 
                 if id_field_obj.is_nullable:
-                    raise ValueError("ID Field %s can not be nullable" %id_field_name)
+                    raise ValueError(
+                        "ID Field %s can not be nullable" % id_field_name)
                 if not id_field_obj.is_index:
-                    raise ValueError("ID Field %s must be index" %id_field_name)
+                    raise ValueError(
+                        "ID Field %s must be index" % id_field_name)
                 id_field_obj.set_is_id()
             # Constraints
             constraints_json = json_model.get(Json.CONSTRAINTS)
@@ -152,7 +154,7 @@ class Generator:
         Models.add_model(model)
         Log.debug("Model created")
         Log.debug(model)
-        Log.debug('*'*80)
+        Log.debug('*' * 80)
 
     def make_manifest(self):
         tmpl_data = dict()
@@ -169,15 +171,14 @@ class Generator:
                               )
         template.render_file()
 
-
     def make_table_columns(self):
         tmpl_data = dict()
         tmpl_data['config'] = self.app
         tmpl_data['all_models'] = Models.get_models()
         for model in Models.get_models():
-            tmpl_data['model']=model
+            tmpl_data['model'] = model
             template = FileObject(build_path=self.app.provider_dir +
-                                             model.name_lower_case +"/",
+                                             model.name_lower_case + "/",
                                   file_name=model.name_camel_case + "Columns.java",
                                   tmpl_path=self.tmpl_path,
                                   tmpl_name='columns.tmpl',
@@ -190,9 +191,9 @@ class Generator:
         tmpl_data['config'] = self.app
         tmpl_data['all_models'] = Models.get_models()
         for model in Models.get_models():
-            tmpl_data['model']=model
+            tmpl_data['model'] = model
             template = FileObject(build_path=self.app.provider_dir +
-                                             model.name_lower_case +"/",
+                                             model.name_lower_case + "/",
                                   file_name=model.name_camel_case +
                                             "Model.java",
                                   tmpl_path=self.tmpl_path,
@@ -206,7 +207,7 @@ class Generator:
         tmpl_data['config'] = self.app
         tmpl_data['all_models'] = Models.get_models()
         out_dir = self.app.provider_dir + "base/"
-        #AbstractCursor
+        # AbstractCursor
         template = FileObject(build_path=out_dir,
                               file_name="AbstractCursor.java",
                               tmpl_path=self.tmpl_path,
@@ -216,7 +217,7 @@ class Generator:
 
         template.render_file()
 
-        #AbstractContentValuesWrapper
+        # AbstractContentValuesWrapper
         template = FileObject(build_path=out_dir,
                               file_name="AbstractContentValues.java",
                               tmpl_path=self.tmpl_path,
@@ -226,7 +227,7 @@ class Generator:
 
         template.render_file()
 
-        #AbstractSelection
+        # AbstractSelection
         template = FileObject(build_path=out_dir,
                               file_name="AbstractSelection.java",
                               tmpl_path=self.tmpl_path,
@@ -236,7 +237,7 @@ class Generator:
 
         template.render_file()
 
-        #BaseContentProvider
+        # BaseContentProvider
         template = FileObject(build_path=out_dir,
                               file_name="BaseContentProvider.java",
                               tmpl_path=self.tmpl_path,
@@ -246,25 +247,24 @@ class Generator:
 
         template.render_file()
 
-        #BaseModel
+        # BaseModel
         template = FileObject(build_path=out_dir,
-                          file_name="BaseModel.java",
-                          tmpl_path=self.tmpl_path,
-                          tmpl_name='abstractmodel.tmpl',
-                          tmpl_data=tmpl_data
-                          )
-
+                              file_name="BaseModel.java",
+                              tmpl_path=self.tmpl_path,
+                              tmpl_name='abstractmodel.tmpl',
+                              tmpl_data=tmpl_data
+                              )
 
         template.render_file()
 
-        #models
+        # models
         for model in self.models:
             # Cursor wrapper
             model_name = model.name_camel_case
             tmpl_data['model'] = model
             out_dir = self.app.provider_dir + model.package_name + "/"
             template = FileObject(build_path=out_dir,
-                                  file_name=model_name+"Cursor.java",
+                                  file_name=model_name + "Cursor.java",
                                   tmpl_path=self.tmpl_path,
                                   tmpl_name='cursor.tmpl',
                                   tmpl_data=tmpl_data
@@ -288,11 +288,12 @@ class Generator:
                                   tmpl_name='selection.tmpl',
                                   tmpl_data=tmpl_data
                                   )
+            template.render_file()
 
             # enums appending to one file
             for field in model.fields:
                 if field.is_enum:
-                    tmpl_data['field']=field
+                    tmpl_data['field'] = field
                     template = FileObject(build_path=out_dir,
                                           file_name=field.enum_name + ".java",
                                           tmpl_path=self.tmpl_path,

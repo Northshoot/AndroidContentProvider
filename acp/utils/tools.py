@@ -59,7 +59,8 @@ def camel_case_to_lower_case_underscore(string):
     from_char_position = 0
     for current_char_position, char in enumerate(string):
         if char.isupper() and from_char_position < current_char_position:
-            words.append(string[from_char_position:current_char_position].lower())
+            words.append(
+                string[from_char_position:current_char_position].lower())
             from_char_position = current_char_position
     words.append(string[from_char_position:].lower())
     return '_'.join(words)
@@ -87,10 +88,13 @@ def write_to_file(file_name, data):
         open(file_name, 'wt').write(data)
     except IOError as e:
         eno, strerror = e.args
-        print("Filename {0} resulted in I/O error({1}): {2}".format(file_name, eno, strerror))
+        print("Filename {0} resulted in I/O error({1}): {2}".format(file_name,
+                                                                    eno,
+                                                                    strerror))
     except:
         print("Unexpected error:", sys.exc_info()[0])
         raise
+
 
 if __name__ == '__main__':
     print(lower_case_underscore_to_camel_case("ledmodel"))

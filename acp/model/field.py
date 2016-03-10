@@ -30,157 +30,179 @@ from acp.utils.logger import logger as Log
 
 
 class Field:
-        def __init__(self, model,  name, documentation,  isId,  isIndex,
-                     isNullable,  isAutoIncrement, defaultValue,  enumName,
-                     enumValues, foreign_key):
-            self.mEnumValues = []
-            self.mModel = model
-            self.mName = name
-            self.mDocumentation = documentation
-            self.mIsId = isId
-            self.mIsIndex = isIndex
-            self.mIsNullable = isNullable
-            self.mIsAutoIncrement = isAutoIncrement
-            self.mDefaultValue = defaultValue
-            self.mEnumName = enumName
-            self.mIsForeign = False
-            if enumValues:
-                self.mEnumValues + enumValues
-            self.mForeignKey = foreign_key
-            self.mIsAmbiguous = False
+    """
+    class representing a field
+    """
 
-        def get_as_foreign_field(self, path, force_nullable):
-            if force_nullable:
-                self.mIsNullable = True
-            res = Field(self.mModel, self.mName, self.mDocumentation,
-                        self.mType.mJsonName, self.mIsId, self.mIsIndex,
-                        self.mIsNullable, self.mIsAutoIncrement,
-                        self.mDefaultValue, self.mEnumName,
-                        self.mEnumValues, self.mForeignKey)
-            res.mIsForeign = True
-            res.mOriginalField = self
-            res.mPath = path
-            return res
+    def __init__(self, model, name, documentation, isId, isIndex,
+                 isNullable, isAutoIncrement, defaultValue, enumName,
+                 enumValues, foreign_key):
+        self.mEnumValues = []
+        self.mModel = model
+        self.mName = name
+        self.mDocumentation = documentation
+        self.mIsId = isId
+        self.mIsIndex = isIndex
+        self.mIsNullable = isNullable
+        self.mIsAutoIncrement = isAutoIncrement
+        self.mDefaultValue = defaultValue
+        self.mEnumName = enumName
+        self.mIsForeign = False
+        if enumValues:
+            self.mEnumValues += enumValues
+        self.mForeignKey = foreign_key
+        self.mIsAmbiguous = False
 
-        def __str__(self):
-            return "Field [mName=" + str(self.mName) + ", " \
-                   "mDocumentation=" + str(self.mDocumentation) + \
-                   ", mType=" + str(self.mType) + ", mIsId=" + str(self.mIsId) + ", " \
-                   "mIsIndex=" + str(self.mIsIndex) + \
-                   ", mIsNullable=" + str(self.mIsNullable) + \
-                   ", mIsAutoIncrement=" + str(self.mIsAutoIncrement) + \
-                   ", mDefaultValue=" + str(self.mDefaultValue) + \
-                   ", mEnumName=" + str(self. mEnumName) + \
-                   ", mEnumValues=" + str(self.mEnumValues) + \
-                   ", mForeignKey=" + str(self.mForeignKey) + "]"
+    def get_as_foreign_field(self, path, force_nullable):
+        if force_nullable:
+            self.mIsNullable = True
+        res = Field(self.mModel, self.mName, self.mDocumentation,
+                    self.mType.mJsonName, self.mIsId, self.mIsIndex,
+                    self.mIsNullable, self.mIsAutoIncrement,
+                    self.mDefaultValue, self.mEnumName,
+                    self.mEnumValues, self.mForeignKey)
+        res.mIsForeign = True
+        res.mOriginalField = self
+        res.mPath = path
+        return res
 
+    def __str__(self):
+        return "Field [mName=" + str(self.mName) + ", " \
+                                                   "mDocumentation=" + str(
+            self.mDocumentation) + \
+               ", mType=" + str(self.mType) + ", mIsId=" + str(
+            self.mIsId) + ", " \
+                          "mIsIndex=" + str(self.mIsIndex) + \
+               ", mIsNullable=" + str(self.mIsNullable) + \
+               ", mIsAutoIncrement=" + str(self.mIsAutoIncrement) + \
+               ", mDefaultValue=" + str(self.mDefaultValue) + \
+               ", mEnumName=" + str(self.mEnumName) + \
+               ", mEnumValues=" + str(self.mEnumValues) + \
+               ", mForeignKey=" + str(self.mForeignKey) + "]"
 
+    @property
+    def model(self):
+        return self.mModel
 
-        @property
-        def model(self): return self.mModel
+    @property
+    def name(self):
+        return self.mName
 
-        @property
-        def name(self): return self.mName
+    @property
+    def name_upper_case(self):
+        return self.name.upper()
 
-        @property
-        def name_upper_case(self): return self.name.upper()
+    @property
+    def name_lower_case(self):
+        return self.name.lower()
 
-        @property
-        def name_lower_case(self): return self.name.lower()
+    @property
+    def name_camel_case(self):
+        return word_tools.lower_case_underscore_to_camel_case(self.mName)
 
-        @property
-        def name_camel_case(self):
-            return word_tools.lower_case_underscore_to_camel_case(self.mName)
+    @property
+    def name_camel_lower_case(self):
+        return self.name_camel_case.lower()
 
-        @property
-        def name_camel_lower_case(self):
-            return self.name_camel_case.lower()
+    @property
+    def is_enum(self):
+        return False
 
-        @property
-        def is_enum(self): return False
+    @property
+    def enum_name(self):
+        return self.mEnumName
 
-        @property
-        def enum_name(self): return self.mEnumName
+    @property
+    def enum_values(self):
+        return self.mEnumValues
 
-        @property
-        def enum_values(self): return self.mEnumValues
+    @property
+    def prefix_name(self):
+        return self.model.name_lower_case + "_" + self.name_lower_case
 
-        @property
-        def prefix_name(self):
-            return self.model.name_lower_case + "_" + self.name_lower_case
+    @property
+    def name_or_prefix(self):
+        if self.mIsAmbiguous:
+            return self.prefix_name
+        else:
+            return self.mName
 
-        @property
-        def name_or_prefix(self):
-            if self.mIsAmbiguous:
-                return self.prefix_name
-            else:
-                return self.mName
+    @property
+    def type(self):
+        return self.mType
 
-        @property
-        def type(self): return self.mType
+    @property
+    def is_ambiguous(self):
+        return self.mIsAmbiguous
 
-        @property
-        def is_ambiguous(self): return self.mIsAmbiguous
+    @property
+    def is_id(self):
+        return self.mIsId
 
-        @property
-        def is_id(self): return self.mIsId
+    def set_is_id(self):
+        self.mIsId = True
 
-        def set_is_id(self): self.mIsId = True
+    @property
+    def is_index(self):
+        return self.mIsIndex
 
-        @property
-        def is_index(self): return self.mIsIndex
+    @property
+    def is_auto_increment(self):
+        return self.mIsAutoIncrement
 
-        @property
-        def is_auto_increment(self):
-            return self.mIsAutoIncrement
+    @property
+    def has_default(self):
+        if self.mDefaultValue:
+            return True
+        else:
+            return False
 
-        @property
-        def has_default(self):
-            if self.mDefaultValue:
-                return True
-            else:
-                return False
+    @property
+    def sql_type(self):
+        return self.mSqlType
 
-        @property
-        def sql_type(self): return self.mSqlType
+    @property
+    def is_nullable(self):
+        return self.mIsNullable
 
-        @property
-        def is_nullable(self): return self.mIsNullable
+    @property
+    def has_not_nullable_java_type(self):
+        return not self._mNullableJavaType == self._mNotNullableJavaType
 
-        @property
-        def has_not_nullable_java_type(self):
-            return not self._mNullableJavaType == self._mNotNullableJavaType
+    @property
+    def nullable_java_type(self):
+        return self._mNullableJavaType
 
-        @property
-        def nullable_java_type(self): return self._mNullableJavaType
+    @property
+    def not_nullable_java_type(self):
+        return self._mNotNullableJavaType
 
-        @property
-        def not_nullable_java_type(self): return self._mNotNullableJavaType
+    @property
+    def simple_java_name(self):
+        if self.mIsNullable:
+            return self.nullable_java_type
+        if not self.mIsNullable:
+            return self.not_nullable_java_type
 
-        @property
-        def simple_java_name(self):
-            if self.mIsNullable:
-                return self.nullable_java_type
-            if not self.mIsNullable:
-                return self.not_nullable_java_type
+    @property
+    def foreign_key(self):
+        return self.mForeignKey
 
-        @property
-        def foreign_key(self): return self.mForeignKey
+    @property
+    def is_foreign_key(self):
+        return self.mIsForeign
 
-        @property
-        def is_foreign_key(self): return self.mIsForeign
+    def set_is_ambiguous(self, val=True):
+        self.mIsAmbiguous = val
 
-        def set_is_ambiguous(self, val=True):
-            self.mIsAmbiguous = val
+    @property
+    def path_uncap_first(self):
+        s = self.path
+        return s[0].lower() + s[1:]
 
-        @property
-        def path_uncap_first(self):
-            s=self.path
-            return s[0].lower()+s[1:]
-
-        @property
-        def function_cursor_get_or_null(self):
-            return "get"+self._mNullableJavaType + "OrNull"
+    @property
+    def function_cursor_get_or_null(self):
+        return "get" + self._mNullableJavaType + "OrNull"
 
 
 class BooleanField(Field):
@@ -226,7 +248,7 @@ class IntegerField(Field):
     def default_value(self):
         try:
             int(self.mDefaultValue)
-            return'\'' + self.mDefaultValue + '\''
+            return '\'' + self.mDefaultValue + '\''
         except ValueError:
             raise ValueError("Models default value is not integer %s" %
                              self.mDefaultValue)
@@ -250,7 +272,7 @@ class LongField(Field):
     def default_value(self):
         try:
             int(self.mDefaultValue)
-            return'\'' + self.mDefaultValue + '\''
+            return '\'' + self.mDefaultValue + '\''
         except ValueError:
             raise ValueError("Models default value is not long %s" %
                              self.mDefaultValue)
@@ -258,7 +280,7 @@ class LongField(Field):
 
 class DateField(Field):
     """
-
+    DateField class
     """
 
     def __init__(self, *args, **kwargs):
@@ -271,12 +293,12 @@ class DateField(Field):
         Log.debug("Created: " + self.__str__())
 
     @property
-    def default_value(self): return'\'' + self.mDefaultValue + '\''
+    def default_value(self): return '\'' + self.mDefaultValue + '\''
 
 
 class EnumField(Field):
     """
-
+    EnumField class
     """
 
     def __init__(self, *args, **kwargs):
@@ -292,23 +314,27 @@ class EnumField(Field):
     def default_value(self):
         try:
             int(self.mDefaultValue)
-            return'\'' + self.mDefaultValue + '\''
+            return '\'' + self.mDefaultValue + '\''
         except ValueError:
             raise ValueError("Models default value is not ENUM %s" %
                              self.mDefaultValue)
 
     @property
-    def has_not_nullable_java_type(self): return False
+    def has_not_nullable_java_type(self):
+        return False
 
     @property
-    def simple_java_name(self): return "null"
+    def simple_java_name(self):
+        return "null"
 
     @property
-    def is_enum(self): return True
+    def is_enum(self):
+        return True
+
 
 class FloatField(Field):
     """
-
+    FloatField class
     """
 
     def __init__(self, *args, **kwargs):
@@ -324,7 +350,7 @@ class FloatField(Field):
     def default_value(self):
         try:
             float(self.mDefaultValue)
-            return'\'' + self.mDefaultValue + '\''
+            return '\'' + self.mDefaultValue + '\''
         except ValueError:
             raise ValueError("Models default value is not float %s" %
                              self.mDefaultValue)
@@ -348,7 +374,7 @@ class DoubleField(Field):
     def default_value(self):
         try:
             float(self.mDefaultValue)
-            return'\'' + self.mDefaultValue + '\''
+            return '\'' + self.mDefaultValue + '\''
         except ValueError:
             raise ValueError("Models default value is not double %s" %
                              self.mDefaultValue)
@@ -372,7 +398,7 @@ class ByteArrayField(Field):
     def default_value(self):
         try:
             float(self.mDefaultValue)
-            return'\'' + self.mDefaultValue + '\''
+            return '\'' + self.mDefaultValue + '\''
         except ValueError:
             raise ValueError("Models default value is not double %s" %
                              self.mDefaultValue)
@@ -396,7 +422,7 @@ class StringField(Field):
     def default_value(self):
         try:
             float(self.mDefaultValue)
-            return'\'' + self.mDefaultValue + '\''
+            return '\'' + self.mDefaultValue + '\''
         except ValueError:
             Log.error("Error in getting default value from: " + self.__str__())
             raise ValueError("Models default value is not double %s" %
@@ -405,10 +431,11 @@ class StringField(Field):
 
 class EnumValue(Field):
     """
-
+    class for enum values
     """
+
     def __init__(self, name, documentation):
-        super(StringField, self).__init__(name, documentation)
+        super(EnumValue, self).__init__(name, documentation)
         Log.debug("Created: " + self.__str__())
         self.mName = name
         self.mDocumentation = documentation
@@ -418,4 +445,3 @@ class EnumValue(Field):
 
     @property
     def get_documentation(self): return self.mDocumentation
-

@@ -33,12 +33,13 @@ from jinja2.exceptions import TemplateNotFound
 
 class TemplateWriter:
     def __init__(self, **kwargs):
+        key = ""
         try:
-            for key in ('build_path', 'file_name',  'tmpl_data'):
+            for key in ('build_path', 'file_name', 'tmpl_data'):
                 setattr(self, key, kwargs[key])
         except KeyError:
             raise KeyError("Missing argument in template object %s"
-                                         %key)
+                           % key)
 
     @property
     def render_string(self):
@@ -49,12 +50,13 @@ class TemplateWriter:
         try:
             return self.tmpl.render(data=self.tmpl_data)
         except TemplateNotFound:
-            raise TemplateNotFound("Ca't find template: %s" %self.tmpl_name)
+            raise TemplateNotFound("Ca't find template: %s" % self.tmpl_name)
 
     def render_file(self):
-        Log.debug(">>Rendering to file %s in path %s." %(self.file_name,
-                                                  self.build_path))
-        write_to_file(self.build_path+'/' + self.file_name, self.render_string)
+        Log.debug(">>Rendering to file %s in path %s." % (self.file_name,
+                                                          self.build_path))
+        write_to_file(self.build_path + '/' + self.file_name,
+                      self.render_string)
 
 
 class FileObject(TemplateWriter):
@@ -70,6 +72,7 @@ class FileObject(TemplateWriter):
                 tmpl_data=)
 
     """
+
     def __init__(self, **kwargs):
         # set mandatory keywords
         super().__init__(**kwargs)
@@ -78,7 +81,7 @@ class FileObject(TemplateWriter):
             for key in ('tmpl_path', 'tmpl_name'):
                 setattr(self, key, kwargs[key])
         except KeyError:
-            raise KeyError("Missing argument in FileObject %s" %key)
+            raise KeyError("Missing argument in FileObject %s" % key)
         # set or create additional
         if 'tmpl_render' in kwargs:
             self.tmpl_render = kwargs['tmpl_render']
@@ -89,4 +92,3 @@ class FileObject(TemplateWriter):
             self.tmpl = kwargs['tmpl']
         else:
             self.tmpl = self.tmpl_render.get_template(self.tmpl_name)
-
