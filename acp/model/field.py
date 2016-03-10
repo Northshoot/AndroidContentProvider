@@ -331,6 +331,9 @@ class EnumField(Field):
     def is_enum(self):
         return True
 
+    @property
+    def is_convertion_needed(self): return self.is_nullable and self.has_not_nullable_java_type
+
 
 class FloatField(Field):
     """

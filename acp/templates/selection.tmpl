@@ -90,156 +90,156 @@ public class {{data.model.name_camel_case}}Selection extends AbstractSelection<{
     public {{data.model.name_camel_case}}Selection orderById() {
         return orderById(false);
     }
-    {% for field in data.model.getFieldsIncludingJoins() %}
+    {% for field in data.model.get_fields_including_joins() %}
         {% if field.name_lower_case != "_id"  %}
 
-            {% if filed.type == "BOOLEAN" %}
+            {% if field.type == "BOOLEAN" %}
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}
                     {{field.path_uncap_first}}{{field
                     .name_camel_case}}{% else %}{{field
                     .name_camel_case_lower_case}}{% endif %}({{field
                     .simple_java_name}} value) {
-        addEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, toObjectArray(value));
+        addEquals({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, toObjectArray(value));
         return this;
     }
             {% else %}
 
-    public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}({{field.simple_java_name}}... value) {
-        addEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, {% if field.isConvertionNeeded %}toObjectArray(value){% else %}value{% endif %});
+    public {{ data.model.name_camel_case }}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}({{field.simple_java_name}}... value) {
+        addEquals({{data.model.name_camel_case}}Columns.{{field.name_upper_case}}, {% if field.is_convertion_needed %}toObjectArray(value){% else %}value{% endif %});
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Not({{field.simple_java_name}}... value) {
-        addNotEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, {% if field.isConvertionNeeded %}toObjectArray(value){% else %}value{% endif %});
+        addNotEquals({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, {% if field.is_convertion_needed %}toObjectArray(value){% else %}value{% endif %});
         return this;
     }
 
             {%  endif %}
 
-            {% if filed.type == "DATE" %}
+            {% if field.type == "DATE" %}
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}({% if field.isNullable %}Long{% else %}long{% endif %}... value) {
-        addEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, {% if field.isNullable %}value{% else %}toObjectArray(value){% endif %});
+        addEquals({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, {% if field.isNullable %}value{% else %}toObjectArray(value){% endif %});
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}After(Date value) {
-        addGreaterThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addGreaterThan({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}AfterEq(Date value) {
-        addGreaterThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addGreaterThanOrEquals({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Before(Date value) {
-        addLessThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addLessThan({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}BeforeEq(Date value) {
-        addLessThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addLessThanOrEquals({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
-            {% elif filed.type =="INTEGER" %}
+            {% elif field.type =="INTEGER" %}
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Gt(int value) {
-        addGreaterThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addGreaterThan({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}GtEq(int value) {
-        addGreaterThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addGreaterThanOrEquals({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Lt(int value) {
-        addLessThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addLessThan({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}LtEq(int value) {
-        addLessThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addLessThanOrEquals({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
-            {% elif filed.type == "LONG" %}
+            {% elif field.type == "LONG" %}
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Gt(long value) {
-        addGreaterThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addGreaterThan({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}GtEq(long value) {
-        addGreaterThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addGreaterThanOrEquals({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Lt(long value) {
-        addLessThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addLessThan({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}LtEq(long value) {
-        addLessThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addLessThanOrEquals({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
-            {% elif filed.type == "FLOAT" %}
+            {% elif field.type == "FLOAT" %}
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Gt(float value) {
-        addGreaterThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addGreaterThan({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}GtEq(float value) {
-        addGreaterThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addGreaterThanOrEquals({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Lt(float value) {
-        addLessThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addLessThan({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}LtEq(float value) {
-        addLessThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addLessThanOrEquals({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
-            {% elif filed.type == "DOUBLE" %}
+            {% elif field.type == "DOUBLE" %}
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Gt(double value) {
-        addGreaterThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addGreaterThan({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}GtEq(double value) {
-        addGreaterThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addGreaterThanOrEquals({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Lt(double value) {
-        addLessThan({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addLessThan({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}LtEq(double value) {
-        addLessThanOrEquals({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addLessThanOrEquals({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
-            {% elif filed.type == "STRING" %}
+            {% elif field.type == "STRING" %}
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Like(String... value) {
-        addLike({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addLike({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}Contains(String... value) {
-        addContains({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addContains({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}StartsWith(String... value) {
-        addStartsWith({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addStartsWith({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection {% if field.is_foreign_key %}{{field.path_uncap_first}}{{field.name_camel_case}}{% else %}{{field.name_camel_case_lowe_case}}{% endif %}EndsWith(String... value) {
-        addEndsWith({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
+        addEndsWith({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, value);
         return this;
     }
             {% endif %}
@@ -247,13 +247,13 @@ public class {{data.model.name_camel_case}}Selection extends AbstractSelection<{
 
     public {{data.model.name_camel_case}}Selection orderBy{% if field
     .is_foreign_key %}{{field.path}}{{field.name_camel_case}}{% else %}{{field.name_camel_case}}{% endif %}(boolean desc) {
-        orderBy({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, desc);
+        orderBy({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, desc);
         return this;
     }
 
     public {{data.model.name_camel_case}}Selection orderBy{% if field
     .is_foreign_key %}{{field.path}}{{field.name_camel_case}}{% else %}{{field.name_camel_case}}{% endif %}() {
-        orderBy({{field.data.model.name_camel_case}}Columns.{{field.name_upper_case}}, false);
+        orderBy({{field.model.name_camel_case}}Columns.{{field.name_upper_case}}, false);
         return this;
     }
 

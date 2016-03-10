@@ -39,9 +39,8 @@ class Application:
               "databaseVersion\n" \
               "enableForeignKeys\n" \
               "useAnnotations\n" \
- \
-            __DEF__HEADER__ = \
-                """
+
+    __DEF__HEADER__ = """
 /*
  * Copyright (C) 2016 Laurynas Riliskis
  *
